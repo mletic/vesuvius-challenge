@@ -1,0 +1,5 @@
+renders/
+.venv/
+__pycache__/
+data/
+ink/
