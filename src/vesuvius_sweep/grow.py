@@ -21,7 +21,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 
 from vesuvius_sweep.microseg import (SOURCES, dominant_normal, fill_and_smooth, frame, open_arr,
-                                     orient_body_positive, to_published_layout, write_zarr)
+                                     orient_body_positive, read_retry, to_published_layout, write_zarr)
 
 
 def peaks_along_n(sf, origin, axes, n0, depth, vs, us):
@@ -65,7 +65,7 @@ def track_from(pk, h0, n0, tol=2.5):
 def load_box(arr, pts, pad=4):
     lo = np.maximum(np.floor(pts.min(0)).astype(int) - pad, 0)
     hi = np.minimum(np.ceil(pts.max(0)).astype(int) + pad, arr.shape)
-    return arr[tuple(slice(a, b) for a, b in zip(lo, hi))], lo
+    return read_retry(arr, tuple(slice(a, b) for a, b in zip(lo, hi))), lo
 
 
 def sample_hires(ct0, c, axes, hs, reach, layers, scale=4, tile=128):
@@ -120,7 +120,7 @@ def main() -> None:
     ct_p, sf_p, lv, um = SOURCES[args.scroll]
     ct_a, sf_a = open_arr(ct_p, lv), open_arr(sf_p, "0")
     c = np.array([args.z, args.y, args.x], float)
-    core = sf_a[tuple(slice(int(q) - 48, int(q) + 48) for q in c)]
+    core = read_retry(sf_a, tuple(slice(int(q) - 48, int(q) + 48) for q in c))
     axes = frame(dominant_normal(core))
     n, v, u = axes
     print("normal (z,y,x):", np.round(n, 3), flush=True)

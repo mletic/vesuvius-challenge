@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import heapq
 import json
+import time
 from pathlib import Path
 
 import fsspec
@@ -78,8 +79,25 @@ for _s, _v in {
                    "0", float(_um.rstrip("um")))
 
 
-def open_arr(prefix: str, level: str) -> zarr.Array:
-    return zarr.open_array(fsspec.get_mapper(f"{BUCKET}/{prefix}"), path=level, mode="r")
+def open_arr(prefix: str, level: str, tries: int = 4) -> zarr.Array:
+    for i in range(tries):  # S3 metadata reads occasionally fail transiently
+        try:
+            return zarr.open_array(fsspec.get_mapper(f"{BUCKET}/{prefix}"), path=level, mode="r")
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(2 * (i + 1))
+
+
+def read_retry(arr: zarr.Array, sl, tries: int = 5) -> np.ndarray:
+    """arr[sl] with retries: long HTTP reads from the bucket sometimes drop."""
+    for i in range(tries):
+        try:
+            return arr[sl]
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(3 * (i + 1))
 
 
 def dominant_normal(surf: np.ndarray) -> np.ndarray:
