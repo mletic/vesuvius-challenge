@@ -75,6 +75,11 @@ knew CUDA/CPU).
    letter structure; not explained by CT dark spots (corr −0.17, control −0.12). Verdict: no legible text there. Original hunt: `scripts/hunt.sh PHerc1203 ...` over 15 seeds (3 heights × 5 clean-sheet regions), log in
    `data/hunt_1203.log`, previews `data/grow/*_view.png`. Reference: on known text (PHerc0841) the 2 µm model gives
    ~31% of pixels > 0.5.
-2. Next: PHerc0846A (same `hunt.sh`, pick seeds from its mid-slice); widen PHerc1203 sampling; then grow promising patches to ≥ 2 cm × 2 cm (about 4 cm²) and render at full res.
+2. PHerc0846A hunt done (14/15 patches; log `data/hunt_0846A.log`). Four patches score at/above the known-text
+   control (0.55, 0.51, 0.40, 0.36 vs 0.31); scores do not track CT gaps (corr with darkness ≈ 0, like the
+   control). The top two are the same x/y (y≈2800–3120, x≈3600–4000, L2) at z946 and z1892. At 5 mm the maps are
+   broad saturated regions, not strokes; letter-like "ΙΠ" marks in the CT are ~0.35 mm fibre strips bridging an air
+   gap (too small, change with depth). Grown to 1 cm (89% coverage): 46% of the area saturated in merged clouds with tile-shaped edges, no discrete
+   letters or lines → model over-response on this papyrus, not legible text. Then widen sampling; then grow promising patches to ≥ 2 cm × 2 cm (about 4 cm²) and render at full res.
 3. Upstream the MPS fix (and anything else learned) to villa.
 4. Do the in-browser ink-labelling exercise ([get_started](https://scrollprize.org/get_started)) and join the Discord.
