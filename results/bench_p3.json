@@ -1,0 +1,8 @@
+{
+ "P3_rotation_auc": {
+  "all_tiles": 0.9155003460207612,
+  "n": 1701,
+  "label_confirmed": 0.9732238623460564,
+  "n_label": 535
+ }
+}
