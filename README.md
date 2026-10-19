@@ -42,17 +42,25 @@ INKENV=... MODELS=... scripts/ink_patch.sh data/microseg/<name>.zarr            
 python scripts/infer_r152.py <zarr> <ink_canonical_2um ckpt> out.tif --villa <villa>  # 2 µm model on MPS
 ```
 
-Ink models run locally on Apple MPS (a one-line device patch to villa's `koine_machines` inference, which only
-knew CUDA/CPU).
+Ink models run locally on Apple MPS. I patched the device choice in the `merge-ink-pipelines` branch's
+`koine_machines` inference; upstream `main` already runs `vesuvius.ink_detection` on MPS (villa #1865), so that
+patch is not needed there.
 
 ## Findings so far (2026-10-18)
 
 - **Validated at 9 µm.** At PHerc0139 segment w043 (known text), ink predicted from *my* micro-segment correlates
   r = 0.55 with ink predicted from the published hand-made segment (r = 0.59 when I sample along the published mesh
   instead of my tracked surface). The tracked sheet sits within ~0.4 voxel (median) of the published mesh.
-- **Orientation matters a lot.** In the wrong in-plane / layer orientation the same model output correlates
-  0.07–0.13 with the published one. Published segments are not consistent among themselves: PHerc0800 and Paris 4
-  segments run the scroll axis rows-*up*, w043 rows-down. Measure it from the tifxyz before trusting a prediction.
+- **Depth order matters; in-plane orientation barely does.** *(Corrected 2026-10-19.)* An earlier version of this
+  README said in-plane orientation "matters a lot" (r 0.07–0.13 in the wrong orientation). Those runs also had the
+  depth order reversed, which is the real cause (already documented upstream in villa #1648). Measured cleanly
+  against the organisers' labels on PHerc0841 w00 (`scripts/orientation_sensitivity.py`): ink_9um gives AUC
+  0.79–0.85 in all 8 in-plane rotations/flips with the published depth order, and 0.49–0.65 with depth reversed;
+  the 2 µm model gives 0.988–0.990 in the four orientations run. Averaging the 8 orientations (0.849) adds nothing
+  over the existing `--tta-mirror` (0.849), which is +0.03 over a single pass (0.816).
+- **Published segments run the scroll axis both ways** (`scripts/audit_orientation.py`, 908 meshes on 308
+  segments): 500 rows-down, 408 rows-up (all of Paris 4 and PHerc0172, half of PHerc1667). Given the result above
+  this is harmless for ink_9um; it matters only for anyone comparing renders pixel by pixel.
 - **Scale calibration.** Letters are ~1.5–3 mm: ~150–300 px at 9 µm, ~600–900 px at 2.4 µm. A 512 px patch at
   9 µm holds only a few letters, and real ink there *looks* like blobs; judge text over ≥1.5 cm fields.
 - **9 µm is not legible.** On known text the 9 µm model gives ~1 mm blobs in rows; the published 2.4 µm predictions
@@ -96,5 +104,5 @@ knew CUDA/CPU).
    broad saturated regions, not strokes; letter-like "ΙΠ" marks in the CT are ~0.35 mm fibre strips bridging an air
    gap (too small, change with depth). Grown to 1 cm (89% coverage): 46% of the area saturated in merged clouds with tile-shaped edges, no discrete
    letters or lines → model over-response on this papyrus, not legible text. Then widen sampling; then grow promising patches to ≥ 2 cm × 2 cm (about 4 cm²) and render at full res.
-3. Upstream the MPS fix (and anything else learned) to villa.
+3. Write-up of the method, controls and negative results (MPS support is already upstream).
 4. Do the in-browser ink-labelling exercise ([get_started](https://scrollprize.org/get_started)) and join the Discord.
