@@ -18,6 +18,7 @@ import numpy as np
 from PIL import Image
 
 OUT = Path("report/index.html")
+DOCS = Path("docs/index.html")
 
 
 def img(path, width=1100, quality=78):
@@ -223,6 +224,16 @@ def main():
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(page)
     print(OUT, f"{OUT.stat().st_size / 1e6:.1f} MB")
+    # Standalone copy for GitHub Pages: the artifact host adds the document skeleton, Pages does not.
+    DOCS.parent.mkdir(exist_ok=True)
+    DOCS.write_text('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+                    '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+                    '<meta name="description" content="Mesh-free surface volumes from the published surface predictions, '
+                    'a pre-registered benchmark of label-free ink diagnostics, and a search of two unread scrolls.">\n'
+                    '<style>*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}'
+                    'body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>\n'
+                    + page.replace("<main", "</head>\n<body>\n<main", 1) + "\n</body>\n</html>\n")
+    print(DOCS, f"{DOCS.stat().st_size / 1e6:.1f} MB")
 
 
 TEMPLATE = Path(__file__).with_name("report_template.html").read_text()

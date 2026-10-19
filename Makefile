@@ -14,7 +14,7 @@ benchmark: labels ## PREREG B1-B4: downloads, two-direction inference, all outco
 	uv run python scripts/bench_b2.py
 	uv run python scripts/bench_eval.py
 
-report:          ## write-up page -> report/index.html
+report:          ## write-up page -> report/index.html and docs/index.html (GitHub Pages)
 	uv run python scripts/build_report.py
 
 test:

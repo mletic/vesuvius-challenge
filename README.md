@@ -2,14 +2,14 @@
 
 Mesh-free surface volumes from the published surface predictions, and a pre-registered benchmark of label-free ink
 diagnostics, for the [Vesuvius Challenge](https://scrollprize.org). Write-up with figures:
-[Mesh-Free Ink Search](https://claude.ai/artifact/AyFGtmj72VtD4uTyFmYHEX). Plan and deviations: [PREREG.md](PREREG.md).
+[Mesh-Free Ink Search](https://mletic.github.io/vesuvius-challenge/). Plan and deviations: [PREREG.md](PREREG.md).
 Raw scores: [results/](results/). MIT licensed; data are the challenge's open data (CC BY-NC 4.0).
 
 ```bash
 make env         # pinned ink-model environment + weights (once); then export the variables it prints
 make test        # unit tests of the text scores
 make benchmark   # PREREG B1-B4 (about 6 h on an M1 Pro)
-make report      # report/index.html
+make report      # report/index.html and docs/index.html (served by GitHub Pages)
 ```
 
 The sections below are the working notes in the order the work happened.
