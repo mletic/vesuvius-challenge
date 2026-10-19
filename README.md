@@ -56,7 +56,7 @@ uv run python scripts/text_line_score.py INK.tif --um 2.4 --out heat.png        
 | `scripts/benchmark/` | The pre-registered benchmark: label inventory, line spacing, data, inference, evaluation, checkpoint pilot |
 | `scripts/experiments/` | Orientation experiments, the audit of published meshes, positive controls against published segments |
 | `scripts/search/` | Search tools: automatic seeding and triage, 2.4 µm reads, segment sweeps |
-| `scripts/writeup/`, `docs/` | The write-up page (`docs/` is served by GitHub Pages) |
+| `scripts/writeup/`, `docs/` | The write-up page and its figures (`docs/` is served by GitHub Pages) |
 | `results/` | Raw scores behind every number in the write-up (see `results/README.md`) |
 | `tests/` | Unit tests of the scores on synthetic lines and noise |
 

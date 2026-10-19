@@ -1,6 +1,7 @@
 # Results
 
-Raw outputs behind every number in the write-up and README. Regenerate with `make benchmark`
+Raw outputs behind every number in the write-up and README; `scripts/writeup/build_report.py` reads only these
+files and `docs/figures/`. Regenerate with `make benchmark`
 (writes `data/bench/results.json`, copied here) and `scripts/benchmark/ckpt_rank.py`.
 
 | File | What it holds |
@@ -11,6 +12,8 @@ Raw outputs behind every number in the write-up and README. Regenerate with `mak
 | `ckrank_scores.json` | Checkpoint pilot, one row per checkpoint × depth direction on PHerc0841 w00: label `auc`, text scores `text` (v1) and `text_v3` (exploratory), `separation`, number of scored `tiles`. |
 | `ckrank_scores_fixed_analysis.json` | The same rows as first scored, before the exploratory v3 column was added. |
 | `ckrank_summary.txt` | Spearman correlations, picked checkpoints and depth-direction accuracy from the pilot. |
+| `triage_PHerc1203.csv`, `triage_PHerc0846A.csv` | Search fields grown at 9.6 µm: seed (`z`, `y`, `x` on level 2 of the 2.4 µm scan), `coverage`, v1 `peak`, `aniso`, `ink_frac`, the geometry guards (`mask_peak`, `hole_frac`) and `clean`. Written by `scripts/search/triage.py`. |
+| `orientation_9um.json` | `ink_9um` AUC against labels on PHerc0841 w00 for all 8 in-plane orientations, with the published and the reversed depth order (`scripts/experiments/orientation_sensitivity.py`). |
 
 ## Keys in `bench_results.json`
 

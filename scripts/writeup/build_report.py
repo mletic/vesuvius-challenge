@@ -1,8 +1,8 @@
-"""Build the write-up page (report/index.html) from the results in data/.
+"""Build the write-up page (report/index.html and docs/index.html).
 
-Figures are embedded as JPEG data URIs; the triage chart is drawn as inline SVG
-from data/triage_*.csv; the checkpoint-ranking section is filled from
-data/ckrank/scores.json when it exists.
+Reads only committed files: figures from docs/figures/ (embedded as JPEG data
+URIs) and numbers from results/ (triage chart, orientation table, benchmark,
+checkpoint pilot), so it rebuilds identically from a fresh clone.
 
 usage: uv run python scripts/writeup/build_report.py
 """
@@ -38,7 +38,7 @@ def figure(path, alt, caption, width=1100):
 def triage_chart():
     rows = []
     for scroll in ("PHerc1203", "PHerc0846A"):
-        p = Path(f"data/triage_{scroll}.csv")
+        p = Path(f"results/triage_{scroll}.csv")
         if not p.exists():
             continue
         for r in csv.DictReader(p.open()):
@@ -82,7 +82,7 @@ def triage_chart():
 
 
 def ckrank_section():
-    p = Path("data/ckrank/scores.json")
+    p = Path("results/ckrank_scores.json")
     if not p.exists():
         return ('<p class="note">This experiment is running now: 14 checkpoints × 2 depth directions on the '
                 '9.366 µm volume of PHerc0841 w00. This section will hold the rank correlations.</p>')
@@ -112,7 +112,7 @@ def ckrank_section():
 
 
 def orient_table():
-    p = Path("data/orient/results_9um.json")
+    p = Path("results/orientation_9um.json")
     if not p.exists():
         return ""
     r = json.loads(p.read_text())
@@ -130,10 +130,13 @@ SCORE_NAMES = {"s3": "v3 row-profile (primary)", "z": "v2 red-noise", "peak": "v
 
 
 def bench_section():
-    p = Path("data/bench/results.json")
+    p = Path("results/bench_results.json")
     if not p.exists():
-        return '<p class="note">The benchmark is running; this section fills in from data/bench/results.json.</p>'
+        return '<p class="note">The benchmark is running; this section fills in from results/bench_results.json.</p>'
     R = json.loads(p.read_text())
+    p3 = Path("results/bench_p3.json")
+    if "P3_rotation_auc" not in R and p3.exists():  # P3 was evaluated in a separate run
+        R.update(json.loads(p3.read_text()))
     segs = R.get("b1_segments", [])
     use = [x for x in segs if not x["ambiguous"]]
     out = [f'<p>B1 used {len(segs)} labelled segments; {len(use)} had a clear text direction '
@@ -175,7 +178,7 @@ def bench_section():
 
 
 def bench_explore():
-    p = Path("data/bench/exploratory_label_confirmed.json")
+    p = Path("results/bench_exploratory_label_confirmed.json")
     if not p.exists():
         return ""
     e = json.loads(p.read_text())
@@ -194,22 +197,22 @@ def bench_explore():
 def main():
     chart, n, n_clean, n_hi_clean, n_tr, n_tr_clean = triage_chart()
     figs = {
-        "v9": figure("data/control/cmp_ink.png", "Ink predictions at 9 µm: published segment versus mesh-free surface",
+        "v9": figure("docs/figures/ink9_published_vs_meshfree.jpg", "Ink predictions at 9 µm: published segment versus mesh-free surface",
                      "PHerc0139 w043, same 7.2 mm window. Left: ink_9um on the published, hand-traced segment. Middle: this "
                      "pipeline's sampler run along the published mesh (r = 0.57 with the left map). Right: the same with the "
                      "depth order reversed (r = 0.13). The fully mesh-free surface from the tracker gives r = 0.55."),
-        "v2": figure("data/control3/_cmp2.png", "CT renders and 2 µm ink predictions, published versus mesh-free",
+        "v2": figure("docs/figures/ink2um_published_vs_meshfree.jpg", "CT renders and 2 µm ink predictions, published versus mesh-free",
                      "PHerc0841 w00, 4.9 mm window. Top: CT at the recto surface, published segment (left) and mesh-free "
                      "surface (right). Bottom: ink_canonical_2um on each. After the −16° rotation between the two frames, "
                      "r = 0.72 (other rotations 0.08 to 0.23)."),
-        "text": figure("data/published_ink/paris4_20231005123336_linescore.png", "Line-periodicity score over a published ink map",
+        "text": figure("docs/figures/textscore_paris4.jpg", "Line-periodicity score over a published ink map",
                        "Line-periodicity score on the published 2.4 µm prediction of PHerc. Paris 4 segment 20231005123336, "
                        "20 mm tiles every 5 mm. Red marks high scores: the text columns light up and the blank margin "
                        "between them stays dark.", 1300),
-        "fp1": figure("data/grow/PHerc1203_z3223_y3724_x4235_S1536_triage_view.png", "Torn PHerc1203 field with a high score",
+        "fp1": figure("docs/figures/rejected_PHerc1203_torn.jpg", "Torn PHerc1203 field with a high score",
                       "A rejected hit (PHerc1203, peak +1.82). CT at the surface, 9 µm ink, and the row profile. The surface "
                       "is torn; the model fires on frayed fragment edges. Coverage 0.58 fails the 0.6 guard."),
-        "fp2": figure("data/grow/PHerc0846A_z3215_y2915_x4265_S1536_triage_view.png", "PHerc0846A field whose outline drives the score",
+        "fp2": figure("docs/figures/rejected_PHerc0846A_outline.jpg", "PHerc0846A field whose outline drives the score",
                       "A rejected hit (PHerc0846A, peak +1.56). The field's own hole and outline map scores +2.34, so the "
                       "periodicity comes from geometry. Its 1 cm read at 2.4 µm has 6% sparse ink blobs, several beside holes."),
     }
