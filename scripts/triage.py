@@ -25,7 +25,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 
 from vesuvius_sweep.microseg import SOURCES, open_arr, read_retry
-from vesuvius_sweep.textscore import line_score
+from vesuvius_sweep.textscore import line_score, mask_peak
 
 CKPTS = ["hybrid_3d2d-seed42/step-040000.pth", "hybrid_3d2d-seed43/step-075000.pth"]
 
@@ -79,15 +79,15 @@ def score_field(scroll: str, stem: Path) -> dict | None:
     valid = np.asarray(Image.open(f"{stem}_mid.png").convert("L")) > 0
     um = SOURCES[scroll][3]
     d = line_score(p, valid, um)
-    m = line_score((~valid).astype(np.float32), np.ones_like(valid), um)
+    mp = mask_peak(valid, um)
     hull = ndi.binary_fill_holes(ndi.binary_closing(valid, iterations=15))
     hole_frac = 1 - valid.sum() / max(hull.sum(), 1)
     ink = float((np.clip((p[valid] - 0.25) / 0.5, 0, 1) > 0.5).mean()) if valid.any() else float("nan")
     clean = (d["coverage"] >= CLEAN["min_coverage"] and hole_frac <= CLEAN["max_hole_frac"]
-             and np.isfinite(m.get("peak", np.nan)) and m["peak"] <= CLEAN["max_mask_peak"])
+             and np.isfinite(mp) and mp <= CLEAN["max_mask_peak"])
     return dict(coverage=round(d["coverage"], 3), peak=round(d.get("peak", np.nan), 3),
                 peak_v=round(d.get("peak_v", np.nan), 3), aniso=round(d["score"], 3), ink_frac=round(ink, 3),
-                mask_peak=round(m.get("peak", np.nan), 3), hole_frac=round(float(hole_frac), 3), clean=int(clean))
+                mask_peak=round(mp, 3), hole_frac=round(float(hole_frac), 3), clean=int(clean))
 
 
 def rescore(scroll: str, out_csv: Path) -> None:

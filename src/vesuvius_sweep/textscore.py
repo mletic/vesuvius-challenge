@@ -43,10 +43,20 @@ def line_score(p: np.ndarray, valid: np.ndarray, px_um: float,
     # Peakness: line spacing is regular, so text puts a bump in the period band
     # relative to its flanks; cracks and fibres give a smooth 1/f fall-off.
     flank = ((r >= 1 / 15.0) & (r < 1 / period_mm[1])) | ((r > 1 / period_mm[0]) & (r <= 1 / 2.0))
-    peak_v = vert / P[flank & (ang <= cone)].mean()
-    peak_h = horiz / P[flank & (ang >= 90 - cone)].mean()
+    fv, fh = P[flank & (ang <= cone)].mean(), P[flank & (ang >= 90 - cone)].mean()
+    if min(vert, horiz, fv, fh) <= 0:  # featureless input (e.g. an all-zero map)
+        return dict(score=np.nan, peak=np.nan, peak_v=np.nan, vert=float(vert), horiz=float(horiz), coverage=float(m.mean()))
+    peak_v, peak_h = vert / fv, horiz / fh
     return dict(score=float(np.log(vert / horiz)), peak=float(np.log(peak_v / peak_h)),
                 peak_v=float(np.log(peak_v)), vert=float(vert), horiz=float(horiz), coverage=float(m.mean()))
+
+
+def mask_peak(valid: np.ndarray, px_um: float) -> float:
+    """Peakness of the surface's own hole/outline map: high values mean tears or the
+    field outline alone produce horizontal periodicity. 0 when there are hardly any holes."""
+    if (~valid).mean() < 0.01:
+        return 0.0
+    return line_score((~valid).astype(np.float32), np.ones_like(valid), px_um).get("peak", np.nan)
 
 
 def tile_scores(p: np.ndarray, valid: np.ndarray, px_um: float, tile_mm: float = 20.0, step_mm: float = 10.0):
