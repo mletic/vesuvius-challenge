@@ -1,0 +1,8 @@
+{
+ "n_label": 56,
+ "auc_label": 0.5681216931216931,
+ "n_unlabelled": 160,
+ "auc_unlabelled": 0.47826967592592595,
+ "tpr_label_at_5pct": 0.05357142857142857,
+ "n_neg": 216
+}

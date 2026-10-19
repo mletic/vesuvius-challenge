@@ -173,6 +173,23 @@ def bench_section():
     return "".join(out)
 
 
+def bench_explore():
+    p = Path("data/bench/exploratory_label_confirmed.json")
+    if not p.exists():
+        return ""
+    e = json.loads(p.read_text())
+    return (f'<p><strong>Exploratory, not pre-registered.</strong> Labels cover only 1–13% of each segment, so most '
+            f'"text-direction" tiles hold no text. Restricted to the {e["n_label"]} tiles where labels confirm ink, v3 '
+            f'still reaches only AUC {e["auc_label"]:.3f} against all {e["n_neg"]} wrong-direction tiles, and flags '
+            f'{e["tpr_label_at_5pct"]:.0%} of them at a 5% false-positive rate. Injection agrees: synthetic lines on top of '
+            f'real 9 µm output are detected only when they are stronger than real ink. The most line-like wrong-direction '
+            f'tiles are plain blob noise, not text from the next winding.</p>'
+            '<p><strong>Reading the result.</strong> The score recognises lines in crisp maps (P3) but not in 9 µm '
+            'outputs, where ink comes out as millimetre blobs. Any label-free text test on 9 µm maps needs more than '
+            'three line periods per tile, or a sharper ink model. For choosing the depth direction, use the separation '
+            'rule: it was right on every segment here.</p>')
+
+
 def main():
     chart, n, n_clean, n_hi_clean, n_tr, n_tr_clean = triage_chart()
     figs = {
@@ -202,7 +219,7 @@ def main():
             .replace("{{n_hi_clean}}", str(n_hi_clean)).replace("{{ckrank}}", ckrank_section())
             .replace("{{orient_table}}", orient_table())
             .replace("{{n_tr}}", str(n_tr)).replace("{{n_tr_clean}}", str(n_tr_clean))
-            .replace("{{bench}}", bench_section()))
+            .replace("{{bench}}", bench_section()).replace("{{bench_explore}}", bench_explore()))
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(page)
     print(OUT, f"{OUT.stat().st_size / 1e6:.1f} MB")

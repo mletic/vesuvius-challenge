@@ -96,8 +96,9 @@ footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule);
   <h2 id="summary-h">Summary</h2>
   <ul>
     <li><strong>Surface volumes without a mesh.</strong> A small tracker follows one papyrus sheet through the published <code>m7</code> surface prediction and samples the CT along it. On known text, ink predicted on these surfaces matches ink predicted on the published hand-traced segments: r = 0.55 at 9 µm and r = 0.72 at 2.4 µm.</li>
-    <li><strong>A label-free test for writing.</strong> Lines of text repeat every 4 to 7 mm along the scroll axis. A directional "peakness" score on ink maps separates known text (+1.5 to +1.9) from presumed-blank papyrus (−0.9 to +0.35). Two geometry guards stop tears and field outlines from faking it.</li>
-    <li><strong>Search of PHerc1203 and PHerc0846A.</strong> {{n}} fields scored at 9.6 µm; {{n_tr}} reached the known-text range and {{n_tr_clean}} of them passed the geometry guards. The best candidates read at 2.4 µm showed no letter strokes. No text found, with the positive controls that make this negative interpretable.</li>
+    <li><strong>A label-free test for lines of writing, and where it fails.</strong> Lines are 6.55 mm apart (median, measured from the organisers' labels). A row-profile periodicity score tells text from its rotated copy on the published 2.4 µm predictions (AUC 0.92; 0.97 where labels confirm ink). In a pre-registered benchmark on 9 µm ink_9um outputs it is at chance (tile AUC 0.50; 0.57 on label-confirmed text), even where the model reads the text almost perfectly. At 9 µm the ink comes out as blobs and the line structure is too weak for a 20 mm tile.</li>
+    <li><strong>A simpler rule that does work.</strong> The separation rule from villa #1867 picked the correct depth direction for all 14 labelled segments (five scrolls) and for all 14 checkpoints on held-out PHerc0841. Neither it nor the text score ranks checkpoints (Spearman +0.01 and +0.00).</li>
+    <li><strong>Search of PHerc1203 and PHerc0846A.</strong> {{n}} fields grown and run through ink_9um; the best candidates were read at 2.4 µm and showed no letter strokes. The benchmark shows the 9 µm text score could not have flagged text there, so the negative rests on the 2.4 µm reads only.</li>
     <li><strong>Orientation.</strong> In-plane rotations and flips barely change ink_9um (AUC 0.79 to 0.85 against labels); reversing the depth order does (0.49 to 0.65), as villa #1648 reports. Published segments run the scroll axis both ways (500 rows-down, 408 rows-up meshes), which is harmless for this model.</li>
   </ul>
 </section>
@@ -130,8 +131,8 @@ footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule);
 
 <div class="prose">
 <h2><span class="num">3 · Text test</span>A label-free score for lines of writing</h2>
-<p>In a published-layout render, lines of text are horizontal and repeat vertically every 4 to 7 mm. The score compares spectral power in that period band with its neighbouring bands, along the vertical direction, relative to the same ratio along the horizontal direction. Fibres and cracks also run horizontally, so a plain anisotropy score rates blank papyrus like text; requiring a peak at the line period removes that.</p>
-<p>Two guards reject geometry: the same score computed on the field's own hole and outline map (<em>mask peak</em> ≤ 1), and coverage ≥ 0.6 with holes ≤ 12% of the outline.</p>
+<p>In a published-layout render, lines of text are horizontal and repeat vertically, 6.55 mm apart (median of 73 measurements on 13 labelled segments; middle 80% 5.65–7.27 mm). The first version (v1, "peakness") compared spectral power in that band with its neighbours, vertical against horizontal. Unit tests showed both v1 and a red-noise variant (v2) are too noisy on a 20 mm tile, which holds only about three line periods. The primary score (v3) averages each row across the tile first (lines span the tile, so this suppresses noise), at tilts of −6° to +6°, and compares the fraction of row-profile power in the band with the same for columns.</p>
+<p>Two guards reject geometry: the same score computed on the field's own hole and outline map (<em>mask peak</em> ≤ 1), and coverage ≥ 0.6 with holes ≤ 12% of the outline. The early calibration below (v1) looked convincing; the benchmark in section 5 shows it does not hold on 9 µm outputs.</p>
 </div>
 {{text}}
 <div class="table-wrap"><table>
@@ -151,7 +152,7 @@ footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule);
 <div class="chart-wrap">{{chart}}</div>
 <div class="legend"><span class="c">passes the geometry guards</span><span class="f">fails a guard (coverage, holes or mask peak)</span></div>
 <div class="prose">
-<p>{{n}} fields were scored; {{n_clean}} pass the guards and {{n_hi_clean}} of those reach a peakness of 1.0. Of the {{n_tr}} fields in the known-text range, {{n_tr_clean}} pass the guards. Two of the rejected ones:</p>
+<p>{{n}} fields were scored with v1; {{n_clean}} pass the guards and {{n_hi_clean}} of those reach a peakness of 1.0. Of the {{n_tr}} fields in the known-text range, {{n_tr_clean}} pass the guards. Two of the rejected ones are below. Section 5 shows that at 9 µm these scores do not separate text from no text, so this ranking only chose where to look at 2.4 µm.</p>
 </div>
 {{fp1}}
 {{fp2}}
@@ -167,6 +168,10 @@ dated deviation). Negatives come from the same surfaces: running ink_9um with th
 ink signal (AUC near 0.5) but keeps every crack, tear and fibre. Positives are the same maps in the direction the
 labels confirm.</p>
 {{bench}}
+</div>
+
+<div class="prose">
+{{bench_explore}}
 </div>
 
 <div class="prose">

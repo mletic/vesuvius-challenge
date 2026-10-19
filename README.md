@@ -90,6 +90,24 @@ patch is not needed there.
   several beside holes, no strokes.
 - Lesson: score the mask too (`mask-peak`) and require clean coverage before trusting a high ink score.
 
+## Pre-registered benchmark of the text score (2026-10-19)
+
+Plan in `PREREG.md` (committed before the runs; five dated deviations, all made before benchmark scoring except a
+disclosed exploratory look). Results in `results/`; reproduce with `make env && make benchmark`.
+
+- **Line spacing from labels:** median 6.55 mm (P10–P90 5.65–7.27 mm, 73 measurements on 13 segments).
+- **P3 passed:** on the 28 labelled segments' published 2.4 µm predictions, the primary score (v3, row-profile
+  periodicity) tells text tiles from their 90°-rotated copies at AUC 0.916 (1,701 tiles; 0.973 on 535 label-confirmed).
+- **P1/P2 failed:** on ink_9um outputs of 14 labelled segments (5 scrolls), with the same map in the wrong depth
+  direction as the negative, v3 picks the text direction 6/14 and reaches tile AUC 0.502 (0.568 on label-confirmed
+  tiles, exploratory). At 9 µm ink is blobby and a 20 mm tile holds ~3 line periods. Injected synthetic lines are
+  detected only when stronger than real ink.
+- **The separation rule (villa #1867) picks the depth direction 14/14** here, and 14/14 checkpoints in the pilot.
+- **Checkpoint ranking:** no label-free score ranks the 14 ink_9um checkpoints on held-out PHerc0841 w00
+  (Spearman: text +0.002, separation +0.011, v3 −0.06).
+- **Consequence for the search:** the 9 µm triage scores could not have flagged text; the PHerc1203/PHerc0846A
+  negatives rest on the 2.4 µm reads.
+
 ## Next steps
 
 1. PHerc1203 hunt done (13/15 seeds produced patches; ink fraction 0.004–0.14 vs 0.31 on known text). Two top
