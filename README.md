@@ -5,7 +5,7 @@ Tools and a pre-registered benchmark for finding ink in CT scans of the
 from the organisers' published surface predictions, the published ink models run on them locally, and label-free
 diagnostics of the resulting ink maps are tested against the organisers' ink labels.
 
-**Write-up with figures:** [mletic.github.io/vesuvius-challenge](https://mletic.github.io/vesuvius-challenge/) ·
+**Write-up with figures:** [mletic.github.io/vesuvius-meshfree-ink](https://mletic.github.io/vesuvius-meshfree-ink/) ·
 **Plan and deviations:** [PREREG.md](PREREG.md) · **Raw scores:** [results/](results/) ·
 **Working notes:** [NOTES.md](NOTES.md)
 

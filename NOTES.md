@@ -2,7 +2,7 @@
 
 The record of how the work went, in order. Later sections correct earlier ones; superseded claims are marked
 **[superseded]** with a pointer to what replaced them. Current results are in the [README](README.md), the
-[write-up](https://mletic.github.io/vesuvius-challenge/) and [PREREG.md](PREREG.md).
+[write-up](https://mletic.github.io/vesuvius-meshfree-ink/) and [PREREG.md](PREREG.md).
 
 Coordinates like `z1892/y3480/x3200` are voxels on level 2 of a scroll's 2.4 µm scan (9.6 µm), the grid the
 surface predictions use. Large intermediate files (volumes, predictions, logs) were kept locally and are not in the
