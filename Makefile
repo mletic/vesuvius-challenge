@@ -6,9 +6,10 @@ env:
 	scripts/setup_inkenv.sh
 
 labels:          ## label inventory, level-2 labels and the measured line period (no model needed)
+	uv run python scripts/bench_inventory.py
 	uv run python scripts/line_period.py
 
-benchmark:       ## PREREG B1-B4: downloads, two-direction inference, all outcomes -> data/bench/results.json
+benchmark: labels ## PREREG B1-B4: downloads, two-direction inference, all outcomes -> data/bench/results.json
 	uv run python scripts/bench_b1.py
 	uv run python scripts/bench_b2.py
 	uv run python scripts/bench_eval.py
