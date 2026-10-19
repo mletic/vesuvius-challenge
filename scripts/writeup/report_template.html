@@ -126,7 +126,7 @@ footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule);
 {{orient_table}}
 <div class="prose">
 <p>Averaging all 8 orientations gives AUC 0.849, the same as the 4 mirror variants that <code>--tta-mirror</code> already averages (0.849), and 0.033 above a single pass. The 2 µm model scored 0.988 to 0.990 in the four orientations run.</p>
-<p>Across all published segments (908 meshes on 308 segments, <code>scripts/audit_orientation.py</code>), 500 meshes run the scroll axis down the rows and 408 up: all of Paris 4 and PHerc0172, half of PHerc1667. Given the table above this does not matter for ink_9um; it matters for pixel-level comparisons between renders.</p>
+<p>Across all published segments (908 meshes on 308 segments, <code>scripts/experiments/audit_orientation.py</code>), 500 meshes run the scroll axis down the rows and 408 up: all of Paris 4 and PHerc0172, half of PHerc1667. Given the table above this does not matter for ink_9um; it matters for pixel-level comparisons between renders.</p>
 </div>
 
 <div class="prose">
@@ -185,11 +185,11 @@ labels confirm.</p>
 <p>Clone <a href="https://github.com/mletic/vesuvius-challenge">github.com/mletic/vesuvius-challenge</a>, run <code>make env</code> once (pinned model environment and weights), then <code>make benchmark</code> and <code>make report</code>. The plan and every deviation are in <code>PREREG.md</code>; raw scores in <code>results/</code>.</p>
 </div>
 <pre>uv run python -m vesuvius_sweep.grow PHerc0841 1984 3997 3553 --size 512 --hires --layers 65   # 2.4 µm surface volume, no mesh
-uv run python scripts/triage.py PHerc0846A --n-z 9 --spacing 550 --max 40                   # seed, grow, ink, score, guard
+uv run python scripts/search/triage.py PHerc0846A --n-z 9 --spacing 550 --max 40                   # seed, grow, ink, score, guard
 uv run python scripts/text_line_score.py INK.tif --um 2.4 --out heat.png                    # text score on any ink map
-uv run python scripts/orientation_sensitivity.py 9um                                        # 8 orientations × 2 depth orders vs labels
-uv run python scripts/audit_orientation.py                                                  # scroll-axis direction of every mesh
-uv run python scripts/ckpt_rank.py                                                          # checkpoint-ranking pilot</pre>
+uv run python scripts/experiments/orientation_sensitivity.py 9um                                        # 8 orientations × 2 depth orders vs labels
+uv run python scripts/experiments/audit_orientation.py                                                  # scroll-axis direction of every mesh
+uv run python scripts/benchmark/ckpt_rank.py                                                          # checkpoint-ranking pilot</pre>
 
 <footer>
   Data: Vesuvius Challenge open data (CC BY-NC 4.0; EduceLab scans under the same terms). Models: scrollprize/ink_9um and scrollprize/ink_canonical_2um. Related upstream discussion: villa #1648 (depth order), #1867 (held-out ink_9um), #1912 (mesh depth offsets).

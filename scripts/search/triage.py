@@ -6,10 +6,10 @@ run the ink_9um model (two checkpoints, default window) and record the
 line-periodicity "peak" score (vesuvius_sweep.textscore) to data/triage_<scroll>.csv.
 Known text scores ~+1.6..+1.8 at 9 µm; presumed-blank segments -0.9..+0.35.
 
-usage: uv run python scripts/triage.py SCROLL [--n-z 4] [--spacing 1100] [--size 1536] [--z-range 0.25 0.75]
-       uv run python scripts/triage.py SCROLL --rescore   # recompute scores and guards in place
+usage: uv run python scripts/search/triage.py SCROLL [--n-z 4] [--spacing 1100] [--size 1536] [--z-range 0.25 0.75]
+       uv run python scripts/search/triage.py SCROLL --rescore   # recompute scores and guards in place
 A field counts as "clean" when coverage >= 0.6, holes <= 12% of its outline and mask_peak <= 1.0.
-       (needs INKENV and MODELS env vars, as in scripts/ink_sweep.sh)
+       (needs INKENV and MODELS env vars, as in scripts/search/ink_sweep.sh)
 """
 
 import argparse

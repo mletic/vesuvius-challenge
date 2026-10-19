@@ -1,6 +1,6 @@
 """Evaluate the pre-registered outcomes P1-P6 (see PREREG.md). Writes data/bench/results.json.
 
-usage: uv run python scripts/bench_eval.py [--skip-b2] [--skip-b3]
+usage: uv run python scripts/benchmark/bench_eval.py [--skip-b2] [--skip-b3]
 """
 
 import argparse
@@ -106,7 +106,7 @@ def b1():
         text_dir = max(a, key=a.get)
         ambiguous = abs(a["forward"] - a["reverse"]) < 0.05 or max(a.values()) < 0.60
         contrast = float(P[text_dir][S & L].mean() - P[text_dir][S & ~L].mean())
-        tl = {k: tiles(P[k], valid, um, lambda pt, v: tile_metrics(pt, v, um)) for k in P}
+        tl = {k: tiles(P[k], valid, um, lambda pt, v, um=um: tile_metrics(pt, v, um)) for k in P}
         mapscore = {k: {m: float(np.nanmedian([t[1][m] for t in tl[k]])) if tl[k] else np.nan
                         for m in ("s3", "z", "peak", "aniso", "mean", "frac")} | {"sep_map": map_sep(P[k], valid)} for k in P}
         segs.append(dict(name=d.name, scroll=d.name.split("_")[0], um=um, auc=a, shift=(dy, dx), text_dir=text_dir,
@@ -203,7 +203,7 @@ def b3(segs, use):
         g = glyph_mask(p.shape, s["um"], rng)
         for a in amps:
             q = np.clip(p + a * g, 0, 1)
-            for _, z in tiles(q, valid, s["um"], lambda pt, v: line_profile_score(pt, v, s["um"], band_mm=BAND)["s"]):
+            for _, z in tiles(q, valid, s["um"], lambda pt, v, um=s["um"]: line_profile_score(pt, v, um, band_mm=BAND)["s"]):
                 if np.isfinite(z):
                     det[a][0] += z > thr; det[a][1] += 1
         print(f"B3 {s['name'][:48]} done", flush=True)

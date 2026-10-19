@@ -1,16 +1,32 @@
-"""Text-structure scores for ink-probability maps in published layout.
+"""Label-free scores for lines of writing in ink-probability maps.
 
 In published layout the scroll axis runs down the rows, so lines of writing run
-horizontally and repeat vertically every ~4-7 mm. The line score compares
-spectral power in that period band along the vertical direction (within
-±`cone` degrees) against the same band along the horizontal direction; blobs
-and clouds are roughly isotropic and score near 0, text lines score > 0.
+horizontally and repeat vertically, 5.65-7.27 mm apart (`LINE_BAND_MM`, P10-P90
+of 73 spacings measured from the organisers' labels; median 6.55 mm).
+
+Which function to use
+---------------------
+`line_profile_score` (v3, primary). Averages each row across the tile, then
+    compares the fraction of row-profile power in the line band with the same
+    for columns. Returns dict(s, s_rows, s_cols, coverage); `s` > 0 means more
+    horizontal line structure. Validated on crisp maps (published 2.4 µm
+    predictions: AUC 0.92 against rotated copies); at chance on 9 µm ink_9um
+    outputs (see PREREG.md and results/).
+`mask_peak`. Geometry guard: the v1 score of a tile's own hole/outline map.
+    Values > 1 mean tears or the outline alone could produce line structure.
+`line_score` (v1, superseded). Directional spectral "peakness"; its key `peak`
+    was the early score and `score` is plain anisotropy. Too noisy on 20 mm tiles.
+`line_z` (v2, secondary). Per-direction excess over a fitted power-law
+    background. Underpowered on 20 mm tiles (unit tests).
 """
 
 from __future__ import annotations
 
 import numpy as np
 from scipy import ndimage as ndi
+
+
+LINE_BAND_MM = (5.65, 7.27)
 
 
 def to_grid(p: np.ndarray, valid: np.ndarray, px_um: float, grid_um: float = 40.0):

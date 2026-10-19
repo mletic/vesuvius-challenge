@@ -59,19 +59,19 @@ repository; the scripts regenerate them.
   horizontal. Early calibration looked convincing (known text +1.6..+1.8, presumed blank −0.9..+0.35); a plain
   anisotropy score had failed because fibres and tears are horizontal too. The pre-registered benchmark (section 6)
   shows text scores do not separate text from no text on 9 µm outputs.
-- `scripts/triage.py`: automatic seeds on surface-prediction sheets, 1.5 cm fields grown at 9.6 µm, ink_9um, score.
+- `scripts/search/triage.py`: automatic seeds on surface-prediction sheets, 1.5 cm fields grown at 9.6 µm, ink_9um, score.
   33 fields scored; four reached the "known-text" range and all four failed inspection (torn surfaces near the ends
   of the scanned band; a field whose own outline produced the periodicity). Added guards: the score of the field's
   hole/outline map (`mask_peak`), coverage and hole fraction.
 
 ## 5. Orientation, test-time augmentation, audit (2026-10-19)
 
-- `scripts/orientation_sensitivity.py`, against the organisers' labels on PHerc0841 w00: ink_9um gives AUC 0.79–0.85
+- `scripts/experiments/orientation_sensitivity.py`, against the organisers' labels on PHerc0841 w00: ink_9um gives AUC 0.79–0.85
   in all 8 in-plane rotations/flips with the published depth order, 0.49–0.65 with depth reversed. The 2 µm model
   gives 0.988–0.990 in the four orientations run.
 - Averaging all 8 orientations (0.849) adds nothing over the existing `--tta-mirror` (0.849), which is +0.03 over a
   single pass (0.816).
-- `scripts/audit_orientation.py`: of 908 published meshes (308 segments), 500 run the scroll axis down the rows and
+- `scripts/experiments/audit_orientation.py`: of 908 published meshes (308 segments), 500 run the scroll axis down the rows and
   408 up (all of Paris 4 and PHerc0172, half of PHerc1667). Harmless for ink_9um given the result above.
 
 ## 6. Pre-registered benchmark and checkpoint pilot (2026-10-19)

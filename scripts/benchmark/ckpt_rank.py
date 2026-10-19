@@ -18,7 +18,7 @@ direction (correct for the 4.681 µm label-bucket renders in #1867). On this
 (seed42 step-075000), so the ranking uses forward. Direction-picking is reported
 for both.
 
-usage: INKENV=... MODELS=... uv run python scripts/ckpt_rank.py [--infer-only | --score-only]
+usage: INKENV=... MODELS=... uv run python scripts/benchmark/ckpt_rank.py [--infer-only | --score-only]
 """
 
 import argparse

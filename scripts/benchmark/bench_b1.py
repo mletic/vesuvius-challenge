@@ -3,7 +3,7 @@
 Outputs data/bench/b1/<scroll>_<segment>/{vol.zarr,pred_forward.tif,pred_reverse.tif}.
 Waits for the checkpoint-ranking pilot to finish before using the GPU.
 
-usage: INKENV=... MODELS=... uv run python scripts/bench_b1.py
+usage: INKENV=... MODELS=... uv run python scripts/benchmark/bench_b1.py
 """
 
 import json
@@ -27,7 +27,7 @@ def segments():
 
 
 def pilot_running():
-    return subprocess.run(["pgrep", "-f", "scripts/ckpt_rank.py"], capture_output=True).returncode == 0
+    return subprocess.run(["pgrep", "-f", "scripts/benchmark/ckpt_rank.py"], capture_output=True).returncode == 0
 
 
 def main():
@@ -42,7 +42,7 @@ def main():
             print(f"download {d.name}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-200:]}", flush=True)
     while pilot_running():
         time.sleep(60)
-    for scroll, seg, vol, shape in jobs:
+    for scroll, seg, _vol, _shape in jobs:
         d = OUT / f"{scroll}_{seg.split('/')[2]}"
         for direction in ("forward", "reverse"):
             out = d / f"pred_{direction}.tif"

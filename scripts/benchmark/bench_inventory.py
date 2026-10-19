@@ -3,7 +3,7 @@
 Writes data/label_inventory.json, data/bench/vol_inventory.json and
 data/bench/labels/<scroll>_<segment>.npz (level 2 = 9.6 µm; zarr v3 read via a throwaway env).
 
-usage: uv run python scripts/bench_inventory.py
+usage: uv run python scripts/benchmark/bench_inventory.py
 """
 
 import json

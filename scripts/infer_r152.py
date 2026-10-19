@@ -67,7 +67,7 @@ def main() -> None:
                 p = model.forward(torch.from_numpy(x).to(dev))
             p = F.interpolate(torch.sigmoid(p.float()), size=(T, T), mode="bilinear", align_corners=False)
             p = p[:, 0].cpu().numpy()
-            for (y, xx), pi in zip(chunk, p):
+            for (y, xx), pi in zip(chunk, p, strict=True):
                 hh, ww = min(T, H - y), min(T, W - xx)
                 acc[y:y + hh, xx:xx + ww] += pi[:hh, :ww] * wk[:hh, :ww]
                 wsum[y:y + hh, xx:xx + ww] += wk[:hh, :ww]

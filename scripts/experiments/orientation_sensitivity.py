@@ -6,8 +6,8 @@ the original frame, and scores it against the published ink labels with AUC
 inside the supervision mask.
 
 usage (needs INKENV / MODELS / VILLA env vars):
-  uv run python scripts/orientation_sensitivity.py 9um   # ink_9um on data/orient/w00_9um.zarr
-  uv run python scripts/orientation_sensitivity.py 2um   # ink_canonical_2um on the central 2048² of w00_2um.zarr
+  uv run python scripts/experiments/orientation_sensitivity.py 9um   # ink_9um on data/orient/w00_9um.zarr
+  uv run python scripts/experiments/orientation_sensitivity.py 2um   # ink_canonical_2um on the central 2048² of w00_2um.zarr
 """
 
 import json

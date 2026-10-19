@@ -42,7 +42,7 @@ def track_from(pk, h0, n0, tol=2.5):
     """Best-first growth inside a tile; h0 holds known global heights (NaN = unknown)."""
     D, V, U = pk.shape
     h = h0.copy()
-    heap = [(0.0, int(a), int(b)) for a, b in zip(*np.nonzero(~np.isnan(h)))]
+    heap = [(0.0, int(a), int(b)) for a, b in np.argwhere(~np.isnan(h))]
     heapq.heapify(heap)
     while heap:
         _, a, b = heapq.heappop(heap)
@@ -65,7 +65,7 @@ def track_from(pk, h0, n0, tol=2.5):
 def load_box(arr, pts, pad=4):
     lo = np.maximum(np.floor(pts.min(0)).astype(int) - pad, 0)
     hi = np.minimum(np.ceil(pts.max(0)).astype(int) + pad, arr.shape)
-    return read_retry(arr, tuple(slice(a, b) for a, b in zip(lo, hi))), lo
+    return read_retry(arr, tuple(slice(a, b) for a, b in zip(lo, hi, strict=True))), lo
 
 
 def sample_hires(ct0, c, axes, hs, reach, layers, scale=4, tile=128):

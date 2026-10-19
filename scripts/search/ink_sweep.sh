@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Run the scrollprize ink_9um model over every published segment of a scroll,
 # at several z windows, caching surface volumes locally.
-# Usage: INKENV=/path/to/venv MODELS=/path/to/models scripts/ink_sweep.sh PHerc0800 [ckpt ...]
+# Usage: INKENV=/path/to/venv MODELS=/path/to/models scripts/search/ink_sweep.sh PHerc0800 [ckpt ...]
 set -euo pipefail
 scroll=$1; shift
 ckpts=("${@:-hybrid_3d2d-seed42/step-040000.pth}")
-root=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$0")/../.." && pwd)
 cache=$root/data/$scroll; out=$root/ink/$scroll
 mkdir -p "$cache" "$out"
 B=https://vesuvius-challenge-open-data.s3.amazonaws.com

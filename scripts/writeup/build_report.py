@@ -4,7 +4,7 @@ Figures are embedded as JPEG data URIs; the triage chart is drawn as inline SVG
 from data/triage_*.csv; the checkpoint-ranking section is filled from
 data/ckrank/scores.json when it exists.
 
-usage: uv run python scripts/build_report.py
+usage: uv run python scripts/writeup/build_report.py
 """
 
 import base64

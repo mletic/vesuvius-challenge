@@ -263,7 +263,7 @@ def main() -> None:
     r = int(np.ceil(np.sqrt(2 * (args.size / 2) ** 2 + (args.depth / 2 + args.layers) ** 2))) + 4
     c = np.array([args.z, args.y, args.x])
     lo = np.maximum(c - r, 0); hi = np.minimum(c + r, ct_a.shape)
-    sl = tuple(slice(a, b) for a, b in zip(lo, hi))
+    sl = tuple(slice(a, b) for a, b in zip(lo, hi, strict=True))
     print(f"loading block {tuple(hi - lo)} at {tuple(lo)} ...", flush=True)
     ct = ct_a[sl]; sf = sf_a[sl]
     origin = (c - lo).astype(np.float32)

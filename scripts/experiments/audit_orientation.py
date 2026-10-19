@@ -10,7 +10,7 @@ the image tells how the segment's renders are oriented:
 
 Writes data/orientation_audit.csv.
 
-usage: uv run python scripts/audit_orientation.py [SCROLL ...]
+usage: uv run python scripts/experiments/audit_orientation.py [SCROLL ...]
 """
 
 import csv
@@ -68,10 +68,10 @@ def main() -> None:
             continue
         with ThreadPoolExecutor(16) as ex:
             info = list(ex.map(meshes, segs))
-        jobs = [(scroll, s.split("/")[2], m, ink) for s, (ms, ink) in zip(segs, info) for m in ms]
+        jobs = [(scroll, s.split("/")[2], m, ink) for s, (ms, ink) in zip(segs, info, strict=True) for m in ms]
         with ThreadPoolExecutor(16) as ex:
             res = list(ex.map(lambda j: classify(j[2]), jobs))
-        for (sc, seg, m, ink), (ang, cls) in zip(jobs, res):
+        for (sc, seg, m, ink), (ang, cls) in zip(jobs, res, strict=True):
             rows.append(dict(scroll=sc, segment=seg, mesh=m.rsplit("/", 1)[1], angle=ang, orientation=cls, has_ink_detection=int(ink)))
         counts = {c: sum(1 for r in rows if r["scroll"] == scroll and r["orientation"] == c) for c in ("rows-down", "rows-up", "cols-right", "cols-left", "empty")}
         print(scroll, len(segs), "segments", counts, flush=True)

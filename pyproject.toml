@@ -1,7 +1,7 @@
 [project]
 name = "vesuvius-sweep"
 version = "0.1.0"
-description = "Add your description here"
+description = "Mesh-free surface volumes and label-free ink diagnostics for the Herculaneum scroll CT scans"
 authors = [
     { name = "Marko Letic", email = "7241522+mletic@users.noreply.github.com" }
 ]

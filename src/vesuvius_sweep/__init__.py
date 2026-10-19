@@ -1,7 +1,16 @@
-"""Sweep published segments of unread scrolls for visible ink.
+"""vesuvius_sweep: mesh-free surface volumes and ink diagnostics for the Herculaneum scrolls.
 
-Streams segment surface volumes straight from the public S3 bucket (no sign-up,
-CC-BY-NC 4.0) and writes flattened renders that can be eyeballed for letters.
+Modules
+-------
+microseg   one sheet tracked over the published surface prediction, sampled into a surface volume
+grow       the same, tile by tile, for larger fields (9.6 µm or 2.4 µm)
+textscore  label-free scores for lines of writing in ink maps
+crop, review, strip   small helpers for published surface volumes and review images
+
+This top-level module holds the bucket helpers (`BUCKET`, `list_prefixes`,
+`surface_volumes`) and the `vesuvius-sweep` command, which renders the published
+segments of the unread scrolls for inspection by eye. All data stream from the
+public bucket (no sign-up, CC BY-NC 4.0).
 """
 
 import argparse

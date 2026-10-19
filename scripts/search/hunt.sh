@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Hunt for ink: grow 2.4 µm micro-segments at a list of level-2 seeds and run the 2 µm ink model.
-# Usage: INKENV=... MODELS=... VILLA=... scripts/hunt.sh SCROLL "z y x" ["z y x" ...]
+# Usage: INKENV=... MODELS=... VILLA=... scripts/search/hunt.sh SCROLL "z y x" ["z y x" ...]
 set -uo pipefail
 scroll=$1; shift
-root=$(cd "$(dirname "$0")/.." && pwd); cd "$root"
+root=$(cd "$(dirname "$0")/../.." && pwd); cd "$root"
 for seed in "$@"; do
   read -r z y x <<< "$seed"
   name=data/grow/${scroll}_z${z}_y${y}_x${x}_S512_hires

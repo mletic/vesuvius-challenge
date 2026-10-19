@@ -4,7 +4,6 @@ import argparse
 import json
 
 import fsspec
-import numpy as np
 import zarr
 
 from vesuvius_sweep import BUCKET

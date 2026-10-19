@@ -101,3 +101,19 @@ A missed target is reported with the measured value. No outcome is dropped.
    seen: on w00, v3 picks the correct depth direction for 7 of 14 checkpoints and ranks checkpoints at Spearman
    −0.06. No score, threshold or procedure was changed after seeing it.
 
+
+## Outcome (added 2026-10-19, after the runs)
+
+The plan above is unchanged. Outcomes, from `results/`:
+
+| # | Target | Result |
+|---|---|---|
+| P1 | ≥ 90% direction choice, ≥ separation | **Missed**: v3 6/14; separation 14/14 |
+| P2 | tile AUC ≥ 0.80 | **Missed**: v3 0.502 |
+| P3 | rotation AUC ≥ 0.90 | **Met**: 0.916 (0.973 label-confirmed) |
+| P4 | held-out FPR ≤ 5% | 3.7%, but with a true-positive rate of 5.6% |
+| P5 | detection limit reported | Synthetic text detected in 31% of tiles at amplitude 0.4, above the real ink contrast (median 0.28) |
+| P6 | search fields after BH | 0 of 12; uninformative given P1/P2 |
+
+Scripts were later moved into `scripts/benchmark/`, `scripts/experiments/` and `scripts/search/`; paths above refer
+to their original locations.

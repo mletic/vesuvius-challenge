@@ -49,17 +49,15 @@ uv run python scripts/text_line_score.py INK.tif --um 2.4 --out heat.png        
 
 | Path | What it does |
 |---|---|
-| `src/vesuvius_sweep/microseg.py`, `grow.py` | Mesh-free surface volumes: track one sheet over the surface prediction, sample the CT along it (9.6 or 2.4 µm), published layout |
-| `src/vesuvius_sweep/textscore.py` | Text scores for ink maps (v1 peakness, v2 red-noise, v3 row-profile periodicity) and the geometry guard |
-| `src/vesuvius_sweep/__init__.py`, `crop.py`, `review.py`, `strip.py` | Bucket access, segment renders, crops, review images |
+| `src/vesuvius_sweep/` | The library: mesh-free surface volumes (`microseg.py`, `grow.py`), text scores (`textscore.py`), bucket access and render helpers |
 | `scripts/setup_inkenv.sh`, `koine_mps.patch` | Pinned environment for the published ink models, with Apple Silicon support |
 | `scripts/infer_r152.py` | The 2 µm ResNet-152 ink model on MPS |
-| `scripts/bench_*.py`, `line_period.py` | The pre-registered benchmark: inventory, data, inference, evaluation |
-| `scripts/ckpt_rank.py` | Checkpoint-ranking pilot (14 `ink_9um` checkpoints) |
-| `scripts/orientation_sensitivity.py`, `audit_orientation.py` | Orientation experiments and the audit of published meshes |
-| `scripts/triage.py`, `hunt.sh`, `text_line_score.py` | Search tools: seeding, growing, scoring, guards |
-| `scripts/control_check.py`, `register_cmp.py` | Positive controls against published segments |
-| `scripts/build_report.py`, `report_template.html`, `docs/` | The write-up page (served by GitHub Pages) |
+| `scripts/text_line_score.py` | Text score of any ink map, with heat overlay and geometry guard |
+| `scripts/benchmark/` | The pre-registered benchmark: label inventory, line spacing, data, inference, evaluation, checkpoint pilot |
+| `scripts/experiments/` | Orientation experiments, the audit of published meshes, positive controls against published segments |
+| `scripts/search/` | Search tools: automatic seeding and triage, 2.4 µm reads, segment sweeps |
+| `scripts/writeup/`, `docs/` | The write-up page (`docs/` is served by GitHub Pages) |
+| `results/` | Raw scores behind every number in the write-up (see `results/README.md`) |
 | `tests/` | Unit tests of the scores on synthetic lines and noise |
 
 ## How it works
