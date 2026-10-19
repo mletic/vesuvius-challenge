@@ -67,6 +67,21 @@ knew CUDA/CPU).
 - **PHerc0800 published segments** (the only published segments on an unread scroll): no letter-like ink at
   9 µm in either orientation; a persistent bright band coincides with a CT crease (artifact).
 
+## Widened hunt with a text-structure score (2026-10-19)
+
+- `textscore.line_score`: in published layout text lines are horizontal and repeat every ~4–7 mm. A pure
+  anisotropy score failed (fibres and tears are horizontal too: presumed-blank PHerc0800 scored like text). The
+  **peakness** score (power in the line-period band vs its flanks, vertical vs horizontal) separates: known text
+  +1.6..+1.8 (my w043 micro-seg +1.79, published +1.60, published 2.4 µm maps in 2 cm tiles median +1.5..+1.9,
+  margins low), presumed blank −0.9..+0.35.
+- Two-stage hunt: `scripts/triage.py` auto-seeds sheets (5 heights, ≥800 L2 vox apart), grows 1.5 cm fields at
+  9.6 µm, runs ink_9um, logs scores (`data/triage_<scroll>.csv`); then 2.4 µm only for the best.
+- 35 seeds → 33 scored. Four reached ≥ +1.5, none survived inspection: both PHerc1203 hits are torn, frayed
+  surfaces near the ends of the scanned band (ink fires on fragment edges); the top PHerc0846A field's *mask*
+  alone scores +2.34 (outline geometry drives the periodicity), and its 2.4 µm 1 cm read has 6% sparse blobs,
+  several beside holes, no strokes.
+- Lesson: score the mask too (`mask-peak`) and require clean coverage before trusting a high ink score.
+
 ## Next steps
 
 1. PHerc1203 hunt done (13/15 seeds produced patches; ink fraction 0.004–0.14 vs 0.31 on known text). Two top
