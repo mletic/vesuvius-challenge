@@ -1,0 +1,182 @@
+<title>Mesh-Free Ink Search</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap">
+<style>
+/* Layout: one readable column of research notes, figures allowed to run wider than the text. */
+:root {
+  --bg: #f5f6f4;          /* pale ash */
+  --surface: #ffffff;
+  --fg: #1d2124;          /* carbon ink */
+  --muted: #5b6267;
+  --rule: #d7dbd8;
+  --accent: #0e6b74;      /* deep teal, used sparingly */
+  --good: #2f7d4f;
+  --flag: #b24a3b;
+  --band-text: rgba(47,125,79,.16);
+  --band-blank: rgba(91,98,103,.14);
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181a; --surface: #1b2023; --fg: #e3e6e3; --muted: #9aa2a6; --rule: #2e3538;
+    --accent: #5fb7bf; --good: #6cc08d; --flag: #e07b6a;
+    --band-text: rgba(108,192,141,.18); --band-blank: rgba(154,162,166,.16);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181a; --surface: #1b2023; --fg: #e3e6e3; --muted: #9aa2a6; --rule: #2e3538;
+  --accent: #5fb7bf; --good: #6cc08d; --flag: #e07b6a;
+  --band-text: rgba(108,192,141,.18); --band-blank: rgba(154,162,166,.16);
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font: 16px/1.62 var(--font-body); }
+.page { max-width: 1060px; margin: 0 auto; padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.prose { max-width: 68ch; }
+header { display: grid; gap: 10px; border-bottom: 1px solid var(--rule); padding-bottom: 28px; margin-bottom: 36px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 650 clamp(30px, 5vw, 46px)/1.08 var(--font-display); margin: 0; text-wrap: balance; }
+.dek { font-size: 18px; color: var(--muted); margin: 0; max-width: 62ch; }
+.byline { font: 13px/1.4 var(--font-mono); color: var(--muted); }
+h2 { font: 650 26px/1.2 var(--font-display); margin: 56px 0 12px; text-wrap: balance; }
+h2 .num { font: 500 13px/1 var(--font-mono); color: var(--accent); letter-spacing: .06em; display: block; margin-bottom: 8px; }
+h3 { font: 600 16px/1.3 var(--font-body); margin: 28px 0 6px; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, .mono { font: 13.5px/1.5 var(--font-mono); }
+code { background: color-mix(in srgb, var(--rule) 45%, transparent); padding: 1px 5px; border-radius: 4px; }
+.summary { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px; display: grid; gap: 10px; }
+.summary h2 { margin: 0; font-size: 20px; }
+.summary ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+figure { margin: 22px 0 26px; }
+figure img { display: block; width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--rule); background: #000; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; max-width: 80ch; }
+.table-wrap { overflow-x: auto; margin: 16px 0 22px; }
+table { border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; min-width: 420px; }
+th, td { text-align: left; padding: 7px 14px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 500 12px/1.3 var(--font-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+td.n { font-family: var(--font-mono); }
+.pill { display: inline-block; font: 500 12px/1.6 var(--font-mono); padding: 0 8px; border-radius: 99px; }
+.pill.good { color: var(--good); border: 1px solid var(--good); }
+.pill.flag { color: var(--flag); border: 1px solid var(--flag); }
+.note { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; color: var(--muted); }
+.chart-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 6px 4px; margin: 18px 0 8px; }
+.chart { width: 100%; min-width: 560px; height: auto; display: block; }
+.chart .grid { stroke: var(--rule); stroke-width: 1; }
+.chart .tick, .chart .lab { fill: var(--muted); font: 12px var(--font-mono); }
+.chart .lane { fill: var(--fg); font: 600 13px var(--font-body); }
+.chart .band-text { fill: var(--band-text); }
+.chart .band-blank { fill: var(--band-blank); }
+.chart .dot-clean { fill: var(--good); fill-opacity: .85; stroke: var(--surface); stroke-width: 1.2; }
+.chart .dot-flag { fill: none; stroke: var(--flag); stroke-width: 1.6; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13.5px; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.legend .c::before { background: var(--good); }
+.legend .f::before { border: 1.6px solid var(--flag); width: 8px; height: 8px; }
+pre { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font: 13px/1.6 var(--font-mono); }
+footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 13.5px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<main class="page">
+<header>
+  <div class="eyebrow">Vesuvius Challenge · research notes · October 2026</div>
+  <h1>Mesh-Free Ink Search</h1>
+  <p class="dek">Automatic surface volumes from the published surface predictions, checked against hand-traced segments, a label-free test for lines of writing, and what they found on two unread scrolls.</p>
+  <div class="byline">Marko Letic · code: vesuvius-challenge repository · data: vesuvius-challenge-open-data (CC BY-NC 4.0)</div>
+</header>
+
+<section class="summary prose" aria-labelledby="summary-h">
+  <h2 id="summary-h">Summary</h2>
+  <ul>
+    <li><strong>Surface volumes without a mesh.</strong> A small tracker follows one papyrus sheet through the published <code>m7</code> surface prediction and samples the CT along it. On known text, ink predicted on these surfaces matches ink predicted on the published hand-traced segments: r = 0.55 at 9 µm and r = 0.72 at 2.4 µm.</li>
+    <li><strong>A label-free test for writing.</strong> Lines of text repeat every 4 to 7 mm along the scroll axis. A directional "peakness" score on ink maps separates known text (+1.5 to +1.9) from presumed-blank papyrus (−0.9 to +0.35). Two geometry guards stop tears and field outlines from faking it.</li>
+    <li><strong>Search of PHerc1203 and PHerc0846A.</strong> {{n}} fields scored at 9.6 µm; {{n_tr}} reached the known-text range and {{n_tr_clean}} of them passed the geometry guards. The best candidates read at 2.4 µm showed no letter strokes. No text found, with the positive controls that make this negative interpretable.</li>
+    <li><strong>Orientation.</strong> In-plane rotations and flips barely change ink_9um (AUC 0.79 to 0.85 against labels); reversing the depth order does (0.49 to 0.65), as villa #1648 reports. Published segments run the scroll axis both ways (500 rows-down, 408 rows-up meshes), which is harmless for this model.</li>
+  </ul>
+</section>
+
+<div class="prose">
+<h2><span class="num">1 · Method</span>Surface volumes from the surface prediction</h2>
+<p>Only one of the 21 scrolls on the challenge's unread list (PHerc0800) has published segments. Eleven of them have the organisers' <code>m7</code> surface prediction on the same grid as the scan. Inside a block a few millimetres across, sheets are close to parallel, so a height field is enough:</p>
+<ul>
+  <li>the sheet normal comes from the structure tensor of the surface prediction around a seed;</li>
+  <li>one sheet is tracked as a height field over surface-prediction peaks, growing best-first from the seed, tile by tile, with each tile's depth window re-centred on the height its neighbours predict;</li>
+  <li>the CT is sampled along the local normal into a 31-layer (9.6 µm) or 65-layer (2.4 µm) surface volume, with the normal's sign chosen so the papyrus body lies on the same side as in published segments, and the scroll axis down the rows.</li>
+</ul>
+<p>On an M1 Pro laptop a 1.5 cm field takes about 8 minutes to grow at 9.6 µm; ink inference runs on the Apple GPU.</p>
+</div>
+
+<h3>Check 1: 9 µm, PHerc0139 w043 (known text)</h3>
+{{v9}}
+<h3>Check 2: 2.4 µm, PHerc0841 w00 (known text, held out for ink_9um)</h3>
+{{v2}}
+
+<div class="prose">
+<h2><span class="num">2 · Orientation</span>What the ink models are sensitive to</h2>
+<p>Ink_9um (seed42 step-040000) on PHerc0841 w00, a 9.8 mm crop of the published 2.4 µm surface volume pooled 4×4×4 to the model's 9.6 µm grid, run on every in-plane rotation and flip, each prediction mapped back and scored against the organisers' labels inside the supervision mask.</p>
+</div>
+{{orient_table}}
+<div class="prose">
+<p>Averaging all 8 orientations gives AUC 0.849, the same as the 4 mirror variants that <code>--tta-mirror</code> already averages (0.849), and 0.033 above a single pass. The 2 µm model scored 0.988 to 0.990 in the four orientations run.</p>
+<p>Across all published segments (908 meshes on 308 segments, <code>scripts/audit_orientation.py</code>), 500 meshes run the scroll axis down the rows and 408 up: all of Paris 4 and PHerc0172, half of PHerc1667. Given the table above this does not matter for ink_9um; it matters for pixel-level comparisons between renders.</p>
+</div>
+
+<div class="prose">
+<h2><span class="num">3 · Text test</span>A label-free score for lines of writing</h2>
+<p>In a published-layout render, lines of text are horizontal and repeat vertically every 4 to 7 mm. The score compares spectral power in that period band with its neighbouring bands, along the vertical direction, relative to the same ratio along the horizontal direction. Fibres and cracks also run horizontally, so a plain anisotropy score rates blank papyrus like text; requiring a peak at the line period removes that.</p>
+<p>Two guards reject geometry: the same score computed on the field's own hole and outline map (<em>mask peak</em> ≤ 1), and coverage ≥ 0.6 with holes ≤ 12% of the outline.</p>
+</div>
+{{text}}
+<div class="table-wrap"><table>
+  <thead><tr><th>Map</th><th>Peakness</th></tr></thead>
+  <tbody>
+    <tr><td>Known text, mesh-free surface (w043, 9 µm)</td><td class="n">+1.79</td></tr>
+    <tr><td>Known text, published segment (w043, 9 µm)</td><td class="n">+1.60</td></tr>
+    <tr><td>Published 2.4 µm predictions, 20 mm tiles, median (Paris 4, PHerc0139, PHerc0841)</td><td class="n">+1.5 to +1.9</td></tr>
+    <tr><td>PHerc0800 published segments (presumed blank)</td><td class="n">−0.90 to +0.35</td></tr>
+  </tbody>
+</table></div>
+
+<div class="prose">
+<h2><span class="num">4 · Search</span>PHerc1203 and PHerc0846A</h2>
+<p>Both scrolls are unread and have 2.4 µm scans with a surface prediction. Neither has published segments; PHerc1203 has 22 raw auto-grown meshes (about 130 cm²), PHerc0846A has none. Seeds were placed automatically on surface-prediction sheets at several heights; each 1.5 cm field was grown at 9.6 µm, run through ink_9um (two checkpoints) and scored.</p>
+</div>
+<div class="chart-wrap">{{chart}}</div>
+<div class="legend"><span class="c">passes the geometry guards</span><span class="f">fails a guard (coverage, holes or mask peak)</span></div>
+<div class="prose">
+<p>{{n}} fields were scored; {{n_clean}} pass the guards and {{n_hi_clean}} of those reach a peakness of 1.0. Of the {{n_tr}} fields in the known-text range, {{n_tr_clean}} pass the guards. Two of the rejected ones:</p>
+</div>
+{{fp1}}
+{{fp2}}
+<div class="prose">
+<p>Earlier 2.4 µm reads of the best-looking patches (5 mm and 1 cm, 2 µm ResNet-152 model) also showed no strokes: on PHerc0846A the model fires over broad saturated regions (46% of a 1 cm field) with tile-shaped edges, which is over-response on that papyrus, not writing.</p>
+<p class="note">Negative within limits: {{n}} fields of 1.5 cm cover a few percent of each scroll's scanned band, and on scrolls the models did not train on even correct predictions are weak (villa #1867). This is evidence that these two scrolls do not show text to the current public models in the sampled areas, not that they carry none.</p>
+</div>
+
+<div class="prose">
+<h2><span class="num">5 · Pilot</span>Can the text score rank checkpoints without labels?</h2>
+<p>Villa #1867 found that in-distribution validation does not rank ink_9um checkpoints on a held-out scroll. If a label-free score did, it would help choose a checkpoint for an unread scroll. Test: all 14 ink_9um checkpoints, both depth directions, on the 9.366 µm volume of PHerc0841 w00 (40 × 45 mm), scored against the organisers' labels.</p>
+{{ckrank}}
+</div>
+
+<div class="prose">
+<h2><span class="num">6 · Reuse</span>What is in the repository</h2>
+</div>
+<pre>uv run python -m vesuvius_sweep.grow PHerc0841 1984 3997 3553 --size 512 --hires --layers 65   # 2.4 µm surface volume, no mesh
+uv run python scripts/triage.py PHerc0846A --n-z 9 --spacing 550 --max 40                   # seed, grow, ink, score, guard
+uv run python scripts/text_line_score.py INK.tif --um 2.4 --out heat.png                    # text score on any ink map
+uv run python scripts/orientation_sensitivity.py 9um                                        # 8 orientations × 2 depth orders vs labels
+uv run python scripts/audit_orientation.py                                                  # scroll-axis direction of every mesh
+uv run python scripts/ckpt_rank.py                                                          # checkpoint-ranking pilot</pre>
+
+<footer>
+  Data: Vesuvius Challenge open data (CC BY-NC 4.0; EduceLab scans under the same terms). Models: scrollprize/ink_9um and scrollprize/ink_canonical_2um. Related upstream discussion: villa #1648 (depth order), #1867 (held-out ink_9um), #1912 (mesh depth offsets).
+</footer>
+</main>
