@@ -71,37 +71,45 @@ def tile_scores(p: np.ndarray, valid: np.ndarray, px_um: float, tile_mm: float =
 
 
 def line_z(p: np.ndarray, valid: np.ndarray, px_um: float, band_mm=(5.65, 7.27),
-           fit_mm=(2.0, 15.0), cone: float = 20.0, n_bins: int = 28) -> dict:
-    """Score v2 (PREREG deviation 2): red-noise excess of line-period power, per direction.
+           fit_mm=(2.0, 15.0), cone: float = 20.0, pad: int = 4) -> dict:
+    """Score v2 (PREREG deviations 2-3): red-noise excess of line-period power, per direction.
 
-    In each cone (vertical frequencies = horizontal lines, and horizontal frequencies)
-    the log power is averaged in log-spaced radial bins over fit_mm periods; a power
-    law fitted to the bins outside band_mm predicts the band; z_dir is the mean band
-    residual over the fit's residual SD. z = z_v - z_h.
+    The tapered tile is zero-padded `pad`x so the spectrum is sampled finely enough for a
+    20 mm tile; in each cone (vertical frequencies = horizontal lines, and horizontal
+    frequencies) the mean power in rings one padded frequency step wide is log-transformed
+    over fit_mm periods; a power law fitted to the rings outside band_mm predicts the band;
+    z_dir is the mean band residual over the fit's residual SD. z = z_v - z_h.
     """
     g, m, um = to_grid(p.astype(np.float32), valid, px_um)
     if m.mean() < 0.3 or m.sum() < 400:
         return dict(z=np.nan, z_v=np.nan, z_h=np.nan, coverage=float(m.mean()))
     x = np.where(m, g - g[m].mean(), 0)
     w = ndi.gaussian_filter(m.astype(np.float32), 3) * np.outer(np.hanning(x.shape[0]), np.hanning(x.shape[1]))
-    P = np.abs(np.fft.fftshift(np.fft.fft2(x * w))) ** 2
-    fy = np.fft.fftshift(np.fft.fftfreq(x.shape[0], d=um / 1000))
-    fx = np.fft.fftshift(np.fft.fftfreq(x.shape[1], d=um / 1000))
+    shp = (x.shape[0] * pad, x.shape[1] * pad)
+    P = np.abs(np.fft.fftshift(np.fft.fft2(x * w, s=shp))) ** 2
+    fy = np.fft.fftshift(np.fft.fftfreq(shp[0], d=um / 1000))
+    fx = np.fft.fftshift(np.fft.fftfreq(shp[1], d=um / 1000))
     FY, FX = np.meshgrid(fy, fx, indexing="ij")
     r = np.hypot(FY, FX)
     ang = np.degrees(np.arctan2(np.abs(FX), np.abs(FY)))
-    edges = np.geomspace(1 / fit_mm[1], 1 / fit_mm[0], n_bins + 1)
-    centers = np.sqrt(edges[:-1] * edges[1:])
+    step = max(fy[1] - fy[0], fx[1] - fx[0])
+    edges = np.arange(1 / fit_mm[1], 1 / fit_mm[0] + step, step)
+    centers = (edges[:-1] + edges[1:]) / 2
     in_band = (centers >= 1 / band_mm[1]) & (centers <= 1 / band_mm[0])
+    # Lines are not sinusoids: keep their 2nd and 3rd harmonics out of the background fit.
+    harmonic = np.zeros_like(in_band)
+    for h in (2, 3):
+        harmonic |= (centers >= h / band_mm[1]) & (centers <= h / band_mm[0])
+    ring = np.digitize(r, edges) - 1
     out = {}
     for name, sel in (("v", ang <= cone), ("h", ang >= 90 - cone)):
-        lp = np.full(n_bins, np.nan)
-        for i in range(n_bins):
-            b = sel & (r >= edges[i]) & (r < edges[i + 1])
-            if b.sum() >= 3 and (P[b] > 0).all():
-                lp[i] = np.log(P[b]).mean()
+        k = ring[sel]; pw = P[sel]
+        ok_k = (k >= 0) & (k < len(centers))
+        sums = np.bincount(k[ok_k], weights=pw[ok_k], minlength=len(centers))
+        cnt = np.bincount(k[ok_k], minlength=len(centers))
+        lp = np.where((cnt > 0) & (sums > 0), np.log(np.maximum(sums, 1e-30) / np.maximum(cnt, 1)), np.nan)
         ok = np.isfinite(lp)
-        fit = ok & ~in_band
+        fit = ok & ~in_band & ~harmonic
         if fit.sum() < 6 or (ok & in_band).sum() < 1:
             return dict(z=np.nan, z_v=np.nan, z_h=np.nan, coverage=float(m.mean()))
         A = np.vstack([np.ones(fit.sum()), np.log(centers[fit])]).T
@@ -110,3 +118,55 @@ def line_z(p: np.ndarray, valid: np.ndarray, px_um: float, band_mm=(5.65, 7.27),
         sd = np.std(lp[fit] - pred[fit], ddof=2)
         out[name] = float(np.mean(lp[ok & in_band] - pred[ok & in_band]) / max(sd, 1e-6))
     return dict(z=out["v"] - out["h"], z_v=out["v"], z_h=out["h"], coverage=float(m.mean()))
+
+
+def _profile_power(g, m, um, band_mm, fit_mm, pad):
+    """Fraction of detrended row-mean-profile power that lies in the line band (harmonics excluded)."""
+    cnt = m.sum(1)
+    prof = np.where(cnt > 0.3 * m.shape[1], (g * m).sum(1) / np.maximum(cnt, 1), np.nan)
+    ok = np.isfinite(prof)
+    if ok.mean() < 0.6:
+        return np.nan
+    idx = np.arange(prof.size)
+    prof = np.interp(idx, idx[ok], prof[ok])
+    prof = prof - ndi.gaussian_filter1d(prof, 10_000 / um)  # remove trends longer than ~1 cm
+    prof = prof * np.hanning(prof.size)
+    P = np.abs(np.fft.rfft(prof, n=prof.size * pad)) ** 2
+    f = np.fft.rfftfreq(prof.size * pad, d=um / 1000)
+    band = (f >= 1 / band_mm[1]) & (f <= 1 / band_mm[0])
+    harm = np.zeros_like(band)
+    for h in (2, 3):
+        harm |= (f >= h / band_mm[1]) & (f <= h / band_mm[0])
+    bg = (f >= 1 / fit_mm[1]) & (f <= 1 / fit_mm[0]) & ~band & ~harm
+    tot = P[band].sum() + P[bg].sum()
+    if not band.any() or bg.sum() < 5 or tot <= 0:
+        return np.nan
+    return float(P[band].sum() / tot)  # fraction of profile power in the line band
+
+
+def line_profile_score(p: np.ndarray, valid: np.ndarray, px_um: float, band_mm=(5.65, 7.27),
+                       fit_mm=(2.0, 15.0), tilts=(-6, -3, 0, 3, 6), pad: int = 8) -> dict:
+    """Score v3 (PREREG deviation 4): periodicity of row-mean profiles.
+
+    Lines of writing run across the whole tile, so averaging each row over the tile's
+    width suppresses noise before looking for the line period. For each small tilt the
+    tile is rotated, the row-mean profile is detrended and the fraction of its power in the
+    line band is taken (2nd/3rd harmonic bands excluded from the total). The best tilt is
+    kept; the same is done with column profiles (lines running the other way) as the
+    control. s = log(frac_rows / frac_cols).
+    """
+    g, m, um = to_grid(p.astype(np.float32), valid, px_um)
+    if m.mean() < 0.3 or m.sum() < 400:
+        return dict(s=np.nan, s_rows=np.nan, s_cols=np.nan, coverage=float(m.mean()))
+    res = {}
+    for name, (G, M) in (("rows", (g, m)), ("cols", (g.T, m.T))):
+        best = -np.inf
+        for t in tilts:
+            Gr = ndi.rotate(G, t, reshape=False, order=1, mode="constant", cval=0) if t else G
+            Mr = (ndi.rotate(M.astype(np.float32), t, reshape=False, order=0, mode="constant", cval=0) > 0.5) if t else M
+            v = _profile_power(Gr, Mr, um, band_mm, fit_mm, pad)
+            if np.isfinite(v):
+                best = max(best, v)
+        res[name] = best if np.isfinite(best) else np.nan
+    s_ = float(np.log(res["rows"] / res["cols"])) if res["rows"] > 0 and res["cols"] > 0 else np.nan
+    return dict(s=s_, s_rows=res["rows"], s_cols=res["cols"], coverage=float(m.mean()))

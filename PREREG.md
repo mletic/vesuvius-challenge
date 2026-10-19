@@ -78,3 +78,22 @@ A missed target is reported with the measured value. No outcome is dropped.
    fitted per direction: a power law fitted to the spectrum inside the ±20° vertical cone at 2–15 mm periods
    excluding the band, the mean band residual divided by the fit's residual SD gives `z_v`; the same in the
    horizontal cone gives `z_h`; `z = z_v − z_h`.
+3. **Score v2 bin statistic (2026-10-19, before any benchmark scoring).** A unit test on synthetic horizontal
+   lines gave z = −2.8: averaging *log* power over the pixels of a radial bin lets the many near-zero pixels
+   drown a periodic peak. Changed to the log of the *mean* power per bin. Also learned from the tests: on white
+   noise the v1 `peak` with the 5.65–7.27 mm band spreads about ±1.5, so fixed thresholds like the earlier 1.0
+   are inside the noise; thresholds in this study come only from the calibration in step 4.
+   The same test then showed the real cause of the sign error: a 20 mm tile resolves frequency only in
+   0.05 cycles/mm steps, so the 28 log-spaced bins were mostly empty and the band peak fell in a bin dropped
+   for having < 3 pixels. Final v2: taper, zero-pad 4×, rings one padded step wide, log of mean ring power, and the 2nd and 3rd
+   harmonic bands excluded from the background fit (lines are not sinusoids; their harmonics inflated the fit).
+4. **Primary score changed to v3 (2026-10-19, before any benchmark scoring; synthetic data only).** Even after
+   deviation 3, v2 is underpowered: on white noise its 95th percentile is 2.3 while clean synthetic lines score
+   1.3, because a 20 mm tile holds only ~3 line periods and 2D spectral estimates are noisy. Added
+   `line_profile_score` (v3): rows are averaged across the tile (lines span the tile, so this suppresses noise
+   by about the square root of the width), at tilts −6…+6°; the fraction of profile power in the 5.65–7.27 mm
+   band (2nd/3rd harmonics excluded) is compared with the same for column profiles, s = log(frac_rows/frac_cols).
+   On synthetic data: white-noise 95th percentile 0.92, 1% and 2% line amplitude on uniform noise 1.08 (mean of
+   5), rotated lines −1.08. **Primary score: v3 `s`.** v1 `peak` and v2 `z` are reported as secondary. All
+   outcomes P1–P6 are computed for every score.
+
