@@ -32,7 +32,7 @@ import tifffile
 import zarr
 from PIL import Image
 
-from vesuvius_sweep.textscore import line_score, mask_peak
+from vesuvius_sweep.textscore import line_profile_score, line_score, mask_peak
 
 D = Path("data/ckrank")
 UM = 9.366
@@ -88,6 +88,21 @@ def text_score(p, valid, tile_mm=20.0, step_mm=5.0):
     return (float(np.median(peaks)) if peaks else np.nan), len(peaks)
 
 
+def text_score_v3(p, valid, tile_mm=20.0, step_mm=5.0):
+    """Exploratory (added after PREREG deviation 4): median v3 profile score over the same clean tiles."""
+    band = tuple(json.load(open("data/bench/line_period.json"))[k] for k in ("p10_mm", "p90_mm"))
+    t, s = int(tile_mm * 1000 / UM), int(step_mm * 1000 / UM)
+    vals = []
+    for r0 in range(0, p.shape[0] - t + 1, s):
+        for c0 in range(0, p.shape[1] - t + 1, s):
+            sl = (slice(r0, r0 + t), slice(c0, c0 + t))
+            if valid[sl].mean() >= 0.6 and mask_peak(valid[sl], UM) <= 1.0:
+                v = line_profile_score(p[sl], valid[sl], UM, band_mm=band)["s"]
+                if np.isfinite(v):
+                    vals.append(v)
+    return float(np.median(vals)) if vals else np.nan
+
+
 def spearman(a, b):
     ra, rb = np.argsort(np.argsort(a)), np.argsort(np.argsort(b))
     return float(np.corrcoef(ra, rb)[0, 1])
@@ -109,24 +124,25 @@ def score():
             sep = float(pv[pv > 0.5].mean() - pv[pv <= 0.5].mean()) if (pv > 0.5).any() else 0.0
             ts, ntiles = text_score(p, valid)
             rows.append(dict(ckpt=ck, direction=direction, auc=round(auc(p[m], lab[m]), 4),
-                             text=round(ts, 4), tiles=ntiles, separation=round(sep, 4)))
+                             text=round(ts, 4), tiles=ntiles, separation=round(sep, 4),
+                             text_v3=round(text_score_v3(p, valid), 4)))
             print(rows[-1], flush=True)
     (D / "scores.json").write_text(json.dumps(rows, indent=1))
 
     rev = [r for r in rows if r["direction"] == "forward"]
     a = [r["auc"] for r in rev]
     print(f"\nforward direction, {len(rev)} checkpoints: AUC {min(a):.3f}..{max(a):.3f}")
-    for k in ("text", "separation"):
-        print(f"  Spearman(AUC, {k}) = {spearman(a, [r[k] for r in rev]):+.3f}")
+    for k in ("text", "separation", "text_v3"):
+        print(f"  Spearman(AUC, {k}) = {spearman(a, [r[k] for r in rev]):+.3f}{'  (exploratory)' if k == 'text_v3' else ''}")
     best = max(rev, key=lambda r: r["auc"])
-    for k in ("text", "separation"):
+    for k in ("text", "separation", "text_v3"):
         pick = max(rev, key=lambda r: r[k])
         print(f"  checkpoint picked by {k}: {pick['ckpt']} AUC {pick['auc']:.3f} (best {best['auc']:.3f}, median {np.median(a):.3f})")
     pairs = {}
     for r in rows:
         pairs.setdefault(r["ckpt"], {})[r["direction"]] = r
     full = [v for v in pairs.values() if len(v) == 2]
-    for k in ("text", "separation"):
+    for k in ("text", "separation", "text_v3"):
         right = sum((v["reverse"][k] > v["forward"][k]) == (v["reverse"]["auc"] > v["forward"]["auc"]) for v in full)
         print(f"  direction picked correctly by {k}: {right}/{len(full)}")
 

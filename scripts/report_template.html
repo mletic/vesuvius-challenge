@@ -161,13 +161,22 @@ footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule);
 </div>
 
 <div class="prose">
-<h2><span class="num">5 · Pilot</span>Can the text score rank checkpoints without labels?</h2>
+<h2><span class="num">5 · Benchmark</span>Does the text score work? A pre-registered test</h2>
+<p>Plan and thresholds were committed before the runs (<code>PREREG.md</code>, with every later change listed as a
+dated deviation). Negatives come from the same surfaces: running ink_9um with the depth order reversed removes the
+ink signal (AUC near 0.5) but keeps every crack, tear and fibre. Positives are the same maps in the direction the
+labels confirm.</p>
+{{bench}}
+</div>
+
+<div class="prose">
+<h2><span class="num">6 · Pilot</span>Can the text score rank checkpoints without labels?</h2>
 <p>Villa #1867 found that in-distribution validation does not rank ink_9um checkpoints on a held-out scroll. If a label-free score did, it would help choose a checkpoint for an unread scroll. Test: all 14 ink_9um checkpoints, both depth directions, on the 9.366 µm volume of PHerc0841 w00 (40 × 45 mm), scored against the organisers' labels.</p>
 {{ckrank}}
 </div>
 
 <div class="prose">
-<h2><span class="num">6 · Reuse</span>What is in the repository</h2>
+<h2><span class="num">7 · Reuse</span>What is in the repository</h2>
 </div>
 <pre>uv run python -m vesuvius_sweep.grow PHerc0841 1984 3997 3553 --size 512 --hires --layers 65   # 2.4 µm surface volume, no mesh
 uv run python scripts/triage.py PHerc0846A --n-z 9 --spacing 550 --max 40                   # seed, grow, ink, score, guard

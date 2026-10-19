@@ -124,6 +124,55 @@ def orient_table():
             f'<tbody>{rows}</tbody></table></div>')
 
 
+SCORE_NAMES = {"s3": "v3 row-profile (primary)", "z": "v2 red-noise", "peak": "v1 peakness", "aniso": "anisotropy",
+               "mean": "mean ink", "frac": "fraction > 0.5", "sep": "separation (#1867)", "sep_map": "separation (#1867)"}
+
+
+def bench_section():
+    p = Path("data/bench/results.json")
+    if not p.exists():
+        return '<p class="note">The benchmark is running; this section fills in from data/bench/results.json.</p>'
+    R = json.loads(p.read_text())
+    segs = R.get("b1_segments", [])
+    use = [x for x in segs if not x["ambiguous"]]
+    out = [f'<p>B1 used {len(segs)} labelled segments; {len(use)} had a clear text direction '
+           f'(AUC gap ≥ 0.05 and best AUC ≥ 0.60). Line band {R["band_mm"][0]:.2f}–{R["band_mm"][1]:.2f} mm, '
+           f'measured from the labels.</p>']
+    seg_rows = "".join(f'<tr><td>{html.escape(x["name"][:46])}</td><td class="n">{x["auc"]["forward"]:.3f}</td>'
+                       f'<td class="n">{x["auc"]["reverse"]:.3f}</td><td>{x["text_dir"]}'
+                       f'{" (ambiguous)" if x["ambiguous"] else ""}</td></tr>' for x in segs)
+    out.append(f'<div class="table-wrap"><table><thead><tr><th>segment</th><th>AUC forward</th><th>AUC reverse</th>'
+               f'<th>text direction</th></tr></thead><tbody>{seg_rows}</tbody></table></div>')
+    p1, p2, p4 = R.get("P1_direction", {}), R.get("P2_tile_auc", {}), R.get("P4_loso", {})
+    keys = [k for k in ("s3", "z", "peak", "aniso", "mean", "frac") if k in p2] + ["sep"]
+    rows = ""
+    for k in keys:
+        d1 = p1.get(k if k != "sep" else "sep_map", {})
+        rows += (f'<tr><td>{SCORE_NAMES[k]}</td><td class="n">{d1.get("correct", "–")}/{d1.get("n", "–")}</td>'
+                 f'<td class="n">{p2.get(k, {}).get("auc", float("nan")):.3f}</td>'
+                 f'<td class="n">{p4.get(k, {}).get("fpr", float("nan")):.3f}</td>'
+                 f'<td class="n">{p4.get(k, {}).get("tpr", float("nan")):.3f}</td></tr>')
+    out.append('<div class="table-wrap"><table><thead><tr><th>score</th><th>P1 direction correct</th>'
+               '<th>P2 tile AUC</th><th>P4 held-out FPR</th><th>held-out TPR</th></tr></thead>'
+               f'<tbody>{rows}</tbody></table></div>')
+    if "P3_rotation_auc" in R:
+        q = R["P3_rotation_auc"]
+        out.append(f'<p><strong>P3.</strong> Published 2.4 µm prediction tiles versus their 90°-rotated copies: AUC '
+                   f'{q["all_tiles"]:.3f} over {q["n"]} tiles; {q["label_confirmed"]:.3f} over the {q["n_label"]} tiles '
+                   f'where labels confirm ink.</p>')
+    if "P5_injection" in R:
+        q = R["P5_injection"]
+        det = " · ".join(f"{float(a):g}: {v:.0%}" for a, v in q["detection"].items())
+        out.append(f'<p><strong>P5.</strong> Synthetic Greek text added to wrong-direction maps, detection rate at the '
+                   f'calibrated threshold ({q["threshold"]:.2f}) by added amplitude: {det}. Real text contrast in the '
+                   f'text-direction maps (labelled ink minus supervised non-ink): median {R["real_contrast"]["median"]:.3f}.</p>')
+    if "P6_search" in R:
+        q = R["P6_search"]
+        out.append(f'<p><strong>P6.</strong> Of {q["n_clean_fields"]} clean search fields on PHerc1203 and PHerc0846A, '
+                   f'{q["n_pass_bh"]} pass the calibrated test after Benjamini–Hochberg at q = 0.10.</p>')
+    return "".join(out)
+
+
 def main():
     chart, n, n_clean, n_hi_clean, n_tr, n_tr_clean = triage_chart()
     figs = {
@@ -152,7 +201,8 @@ def main():
     page = (page.replace("{{chart}}", chart).replace("{{n}}", str(n)).replace("{{n_clean}}", str(n_clean))
             .replace("{{n_hi_clean}}", str(n_hi_clean)).replace("{{ckrank}}", ckrank_section())
             .replace("{{orient_table}}", orient_table())
-            .replace("{{n_tr}}", str(n_tr)).replace("{{n_tr_clean}}", str(n_tr_clean)))
+            .replace("{{n_tr}}", str(n_tr)).replace("{{n_tr_clean}}", str(n_tr_clean))
+            .replace("{{bench}}", bench_section()))
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(page)
     print(OUT, f"{OUT.stat().st_size / 1e6:.1f} MB")
