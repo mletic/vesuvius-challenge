@@ -68,3 +68,45 @@ def tile_scores(p: np.ndarray, valid: np.ndarray, px_um: float, tile_mm: float =
             d = line_score(p[r0:r0 + t, c0:c0 + t], valid[r0:r0 + t, c0:c0 + t], px_um)
             out.append((r0, c0, d))
     return out
+
+
+def line_z(p: np.ndarray, valid: np.ndarray, px_um: float, band_mm=(5.65, 7.27),
+           fit_mm=(2.0, 15.0), cone: float = 20.0, n_bins: int = 28) -> dict:
+    """Score v2 (PREREG deviation 2): red-noise excess of line-period power, per direction.
+
+    In each cone (vertical frequencies = horizontal lines, and horizontal frequencies)
+    the log power is averaged in log-spaced radial bins over fit_mm periods; a power
+    law fitted to the bins outside band_mm predicts the band; z_dir is the mean band
+    residual over the fit's residual SD. z = z_v - z_h.
+    """
+    g, m, um = to_grid(p.astype(np.float32), valid, px_um)
+    if m.mean() < 0.3 or m.sum() < 400:
+        return dict(z=np.nan, z_v=np.nan, z_h=np.nan, coverage=float(m.mean()))
+    x = np.where(m, g - g[m].mean(), 0)
+    w = ndi.gaussian_filter(m.astype(np.float32), 3) * np.outer(np.hanning(x.shape[0]), np.hanning(x.shape[1]))
+    P = np.abs(np.fft.fftshift(np.fft.fft2(x * w))) ** 2
+    fy = np.fft.fftshift(np.fft.fftfreq(x.shape[0], d=um / 1000))
+    fx = np.fft.fftshift(np.fft.fftfreq(x.shape[1], d=um / 1000))
+    FY, FX = np.meshgrid(fy, fx, indexing="ij")
+    r = np.hypot(FY, FX)
+    ang = np.degrees(np.arctan2(np.abs(FX), np.abs(FY)))
+    edges = np.geomspace(1 / fit_mm[1], 1 / fit_mm[0], n_bins + 1)
+    centers = np.sqrt(edges[:-1] * edges[1:])
+    in_band = (centers >= 1 / band_mm[1]) & (centers <= 1 / band_mm[0])
+    out = {}
+    for name, sel in (("v", ang <= cone), ("h", ang >= 90 - cone)):
+        lp = np.full(n_bins, np.nan)
+        for i in range(n_bins):
+            b = sel & (r >= edges[i]) & (r < edges[i + 1])
+            if b.sum() >= 3 and (P[b] > 0).all():
+                lp[i] = np.log(P[b]).mean()
+        ok = np.isfinite(lp)
+        fit = ok & ~in_band
+        if fit.sum() < 6 or (ok & in_band).sum() < 1:
+            return dict(z=np.nan, z_v=np.nan, z_h=np.nan, coverage=float(m.mean()))
+        A = np.vstack([np.ones(fit.sum()), np.log(centers[fit])]).T
+        coef, *_ = np.linalg.lstsq(A, lp[fit], rcond=None)
+        pred = coef[0] + coef[1] * np.log(centers)
+        sd = np.std(lp[fit] - pred[fit], ddof=2)
+        out[name] = float(np.mean(lp[ok & in_band] - pred[ok & in_band]) / max(sd, 1e-6))
+    return dict(z=out["v"] - out["h"], z_v=out["v"], z_h=out["h"], coverage=float(m.mean()))

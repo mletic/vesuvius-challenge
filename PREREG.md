@@ -69,4 +69,12 @@ A missed target is reported with the measured value. No outcome is dropped.
 
 ## Deviations
 
-(none yet)
+1. **Step 1 run length (2026-10-19, before any scoring).** With 10 mm strips and ≥ 15 mm supervised runs only
+   2 of 28 segments yielded a spacing (n = 6): supervision comes in short patches. Changed to 5 mm strips and
+   ≥ 10 mm runs: n = 73 spacings from 13 segments, median 6.55 mm, P10–P90 5.65–7.27 mm. Band for scoring:
+   5.65–7.27 mm.
+2. **Score v2 definition made precise (before any scoring).** Fitting one power law to the *radially averaged*
+   spectrum would count the horizontal fibre and crack texture as excess vertical power. `z` is therefore
+   fitted per direction: a power law fitted to the spectrum inside the ±20° vertical cone at 2–15 mm periods
+   excluding the band, the mean band residual divided by the fit's residual SD gives `z_v`; the same in the
+   horizontal cone gives `z_h`; `z = z_v − z_h`.
