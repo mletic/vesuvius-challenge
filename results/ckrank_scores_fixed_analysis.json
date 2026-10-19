@@ -1,0 +1,226 @@
+[
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-010000.pth",
+  "direction": "reverse",
+  "auc": 0.5227,
+  "text": -0.6203,
+  "tiles": 19,
+  "separation": 0.1832
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-010000.pth",
+  "direction": "forward",
+  "auc": 0.7666,
+  "text": 0.7108,
+  "tiles": 19,
+  "separation": 0.2012
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-020000.pth",
+  "direction": "reverse",
+  "auc": 0.5722,
+  "text": -0.8677,
+  "tiles": 19,
+  "separation": 0.2432
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-020000.pth",
+  "direction": "forward",
+  "auc": 0.7659,
+  "text": 0.1619,
+  "tiles": 19,
+  "separation": 0.2507
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-030000.pth",
+  "direction": "reverse",
+  "auc": 0.5392,
+  "text": -0.4122,
+  "tiles": 19,
+  "separation": 0.2142
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-030000.pth",
+  "direction": "forward",
+  "auc": 0.7715,
+  "text": 0.9739,
+  "tiles": 19,
+  "separation": 0.2361
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-040000.pth",
+  "direction": "reverse",
+  "auc": 0.5062,
+  "text": 0.112,
+  "tiles": 19,
+  "separation": 0.2433
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-040000.pth",
+  "direction": "forward",
+  "auc": 0.7617,
+  "text": 0.0705,
+  "tiles": 19,
+  "separation": 0.2626
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-050000.pth",
+  "direction": "reverse",
+  "auc": 0.4937,
+  "text": -0.002,
+  "tiles": 19,
+  "separation": 0.2585
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-050000.pth",
+  "direction": "forward",
+  "auc": 0.7469,
+  "text": -0.0662,
+  "tiles": 19,
+  "separation": 0.2844
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-060000.pth",
+  "direction": "reverse",
+  "auc": 0.5104,
+  "text": 0.2059,
+  "tiles": 19,
+  "separation": 0.2642
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-060000.pth",
+  "direction": "forward",
+  "auc": 0.7588,
+  "text": 0.2289,
+  "tiles": 19,
+  "separation": 0.2896
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-075000.pth",
+  "direction": "reverse",
+  "auc": 0.5013,
+  "text": 0.3908,
+  "tiles": 19,
+  "separation": 0.2746
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed42/step-075000.pth",
+  "direction": "forward",
+  "auc": 0.7483,
+  "text": 0.1555,
+  "tiles": 19,
+  "separation": 0.2973
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-010000.pth",
+  "direction": "reverse",
+  "auc": 0.5227,
+  "text": -0.278,
+  "tiles": 19,
+  "separation": 0.1879
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-010000.pth",
+  "direction": "forward",
+  "auc": 0.7166,
+  "text": 0.4139,
+  "tiles": 19,
+  "separation": 0.202
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-020000.pth",
+  "direction": "reverse",
+  "auc": 0.4691,
+  "text": -0.0502,
+  "tiles": 19,
+  "separation": 0.2421
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-020000.pth",
+  "direction": "forward",
+  "auc": 0.7787,
+  "text": 0.3577,
+  "tiles": 19,
+  "separation": 0.2642
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-030000.pth",
+  "direction": "reverse",
+  "auc": 0.5415,
+  "text": 0.1081,
+  "tiles": 19,
+  "separation": 0.2497
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-030000.pth",
+  "direction": "forward",
+  "auc": 0.7031,
+  "text": 0.982,
+  "tiles": 19,
+  "separation": 0.2588
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-040000.pth",
+  "direction": "reverse",
+  "auc": 0.5358,
+  "text": -0.2606,
+  "tiles": 19,
+  "separation": 0.2754
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-040000.pth",
+  "direction": "forward",
+  "auc": 0.7177,
+  "text": 0.6418,
+  "tiles": 19,
+  "separation": 0.2802
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-050000.pth",
+  "direction": "reverse",
+  "auc": 0.5757,
+  "text": -0.2066,
+  "tiles": 19,
+  "separation": 0.2603
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-050000.pth",
+  "direction": "forward",
+  "auc": 0.822,
+  "text": 0.4842,
+  "tiles": 19,
+  "separation": 0.2767
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-060000.pth",
+  "direction": "reverse",
+  "auc": 0.5834,
+  "text": 0.0758,
+  "tiles": 19,
+  "separation": 0.2678
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-060000.pth",
+  "direction": "forward",
+  "auc": 0.7404,
+  "text": 0.3911,
+  "tiles": 19,
+  "separation": 0.28
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-075000.pth",
+  "direction": "reverse",
+  "auc": 0.5987,
+  "text": -0.0893,
+  "tiles": 19,
+  "separation": 0.2852
+ },
+ {
+  "ckpt": "hybrid_3d2d-seed43/step-075000.pth",
+  "direction": "forward",
+  "auc": 0.7727,
+  "text": 0.5134,
+  "tiles": 19,
+  "separation": 0.2992
+ }
+]

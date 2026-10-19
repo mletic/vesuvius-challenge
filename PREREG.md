@@ -96,4 +96,8 @@ A missed target is reported with the measured value. No outcome is dropped.
    On synthetic data: white-noise 95th percentile 0.92, 1% and 2% line amplitude on uniform noise 1.08 (mean of
    5), rotated lines −1.08. **Primary score: v3 `s`.** v1 `peak` and v2 `z` are reported as secondary. All
    outcomes P1–P6 are computed for every score.
+5. **Disclosure (2026-10-19).** After v3 was frozen (deviation 4), the checkpoint-ranking pilot was re-scored with
+   v3 as an exploratory column. Its data include PHerc0841 w00 seed42 step-075000, which is also a B1 map. Result
+   seen: on w00, v3 picks the correct depth direction for 7 of 14 checkpoints and ranks checkpoints at Spearman
+   −0.06. No score, threshold or procedure was changed after seeing it.
 

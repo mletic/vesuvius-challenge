@@ -1,0 +1,10 @@
+forward direction, 14 checkpoints: AUC 0.703..0.822
+  Spearman(AUC, text) = +0.002
+  Spearman(AUC, separation) = +0.011
+  Spearman(AUC, text_v3) = -0.059  (exploratory)
+  checkpoint picked by text: hybrid_3d2d-seed43/step-030000.pth AUC 0.703 (best 0.822, median 0.760)
+  checkpoint picked by separation: hybrid_3d2d-seed43/step-075000.pth AUC 0.773 (best 0.822, median 0.760)
+  checkpoint picked by text_v3: hybrid_3d2d-seed43/step-060000.pth AUC 0.740 (best 0.822, median 0.760)
+  direction picked correctly by text: 11/14
+  direction picked correctly by separation: 14/14
+  direction picked correctly by text_v3: 7/14
